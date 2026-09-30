@@ -388,7 +388,7 @@ const patterns: Pattern[] = [
       correct: 1,
       explanation: 'The answer space is monotonic: once a capacity is feasible, every larger capacity is also feasible.',
     },
-  },,
+  },
   {
     id: 'prefix-sum',
     no: '04',
