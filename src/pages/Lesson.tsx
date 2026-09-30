@@ -125,7 +125,7 @@ export function Lesson(props: { pattern: Pattern; isComplete: boolean; onBack: (
             />
           </LessonCard>
 
-          <LessonCard number="03" eyebrow="CONNECT VISUAL → CODE" title="The line that explains the movement">
+          <LessonCard number="03" eyebrow="PREDICT NEXT" title="Apply the invariant yourself">\n            <PredictionMode pattern={pattern} />\n          </LessonCard>\n\n          <LessonCard number="04" eyebrow="CONNECT VISUAL TO CODE" title="The line that explains the movement">
             <div className="code-window">
               <div className="code-bar"><span /><span /><span /><em>solution.ts</em></div>
               <pre>
@@ -138,13 +138,13 @@ export function Lesson(props: { pattern: Pattern; isComplete: boolean; onBack: (
             </div>
           </LessonCard>
 
-          <LessonCard number="04" eyebrow="THE INVARIANT" title="The rule that must stay true">
+          <LessonCard number="05" eyebrow="THE INVARIANT" title="The rule that must stay true">
             <blockquote>{pattern.invariant}</blockquote>
             <p className="hint">If you can explain this without looking at the template, you understand the pattern.</p>
           </LessonCard>
 
           {hasMistakes && (
-            <LessonCard number="05" eyebrow="MISTAKE LAB" title="Watch the invariant break">
+            <LessonCard number={mistakeStep} eyebrow="MISTAKE LAB" title="Watch the invariant break">
               <MistakeLab patternId={pattern.id} />
             </LessonCard>
           )}
