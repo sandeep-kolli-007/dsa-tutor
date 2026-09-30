@@ -44,6 +44,14 @@ The goal is to help a learner see an unseen problem and recognize the underlying
 17. Binary Search on Answer — minimum truck capacity
 18. 2D Dynamic Programming — city-grid route counts
 19. Dijkstra — weighted navigation routes
+20. Kadane / Maximum Subarray — profitable streaks
+21. Cyclic Sort — numbered books to numbered shelves
+22. K-way Merge — merging sorted checkout lines
+23. Matrix Traversal — warehouse floor-plan exploration
+24. Segment Tree — nested warehouse zone totals
+25. Fenwick Tree — compact prefix-sum buckets
+26. Bellman-Ford — discounted routes with negative edges
+27. Floyd-Warshall — all-pairs routing through transfer hubs
 
 ## Run
 
@@ -58,6 +66,11 @@ Production build:
 npm run build
 ```
 
-## Advanced track next
+## Expert track next
 
-Kadane / Maximum Subarray, Cyclic Sort, K-way Merge, Matrix Traversal, Segment Tree, Fenwick Tree, Bellman-Ford, and Floyd-Warshall.
+KMP, Rabin-Karp, Strongly Connected Components, Prim MST, Kruskal MST, A* Search, Sparse Table, and advanced DP optimization.
+
+
+## CI
+
+Every pull request runs an automated Node 22 production build to catch TypeScript or Vite regressions.
