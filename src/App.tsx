@@ -4247,6 +4247,17 @@ function Visualizer({ pattern, frame }: { pattern: Pattern; frame: Frame }) {
   if (pattern.id === 'monotonic-queue') return <DequeVisualizer pattern={pattern} frame={frame} />;
   if (pattern.id === 'quickselect' || pattern.id === 'dutch-flag') return <PartitionVisualizer pattern={pattern} frame={frame} />;
   if (pattern.id === 'meet-in-middle') return <MeetMiddleVisualizer pattern={pattern} frame={frame} />;
+  if (pattern.id === 'merge-sort' || pattern.id === 'quick-sort') return <PartitionVisualizer pattern={pattern} frame={frame} />;
+  if (pattern.id === 'counting-sort') return <FrequencyVisualizer pattern={pattern} frame={frame} />;
+  if (pattern.id === 'z-algorithm' || pattern.id === 'manacher') return <StringMatchVisualizer pattern={pattern} frame={frame} />;
+  if (pattern.id === 'aho-corasick') return frame.text ? <StringMatchVisualizer pattern={pattern} frame={frame} /> : <TrieVisualizer pattern={pattern} frame={frame} />;
+  if (pattern.id === 'eulerian-path' || pattern.id === 'multi-source-bfs') return <GraphVisualizer pattern={pattern} frame={frame} />;
+  if (pattern.id === 'bridges') return <CriticalGraphVisualizer pattern={pattern} frame={frame} />;
+  if (pattern.id === 'zero-one-bfs') return <DijkstraVisualizer pattern={pattern} frame={frame} />;
+  if (pattern.id === 'tree-diameter') return <TreePathVisualizer pattern={pattern} frame={frame} />;
+  if (pattern.id === 'tree-dp') return <TreeFoundationVisualizer pattern={pattern} frame={frame} />;
+  if (pattern.id === 'bitmask-dp') return <BitVisualizer pattern={pattern} frame={frame} />;
+  if (pattern.id === 'digit-dp') return <DPOptimizationVisualizer pattern={pattern} frame={frame} />;
   return <ArrayVisualizer pattern={pattern} frame={frame} />;
 }
 
@@ -5126,6 +5137,48 @@ function MeetMiddleVisualizer({ pattern, frame }: { pattern: Pattern; frame: Fra
         <div className="mitm-target"><small>TARGET</small><strong>{frame.target}</strong></div>
         <div><span className="visual-caption">RIGHT HALF</span>{(frame.halves?.[1]||[]).map((v,i)=><b key={i}>{v}</b>)}</div>
       </div>
+    </VisualShell>
+  );
+}
+
+
+function CriticalGraphVisualizer({ pattern, frame }: { pattern: Pattern; frame: Frame }) {
+  return (
+    <VisualShell pattern={pattern} frame={frame}>
+      <div className="critical-graph">
+        <svg viewBox="0 0 100 100" preserveAspectRatio="none">
+          {(frame.edges||[]).map(([a,b],i)=>{
+            const selected=(frame.selectedEdges||[]).some(([x,y])=>(x===a&&y===b)||(x===b&&y===a));
+            return <line key={i} className={selected?'critical-edge':''} x1={dijkstraPositions[a][0]} y1={dijkstraPositions[a][1]} x2={dijkstraPositions[b][0]} y2={dijkstraPositions[b][1]} />;
+          })}
+        </svg>
+        {(frame.labels||[]).map((label,index)=>{
+          const [x,y]=dijkstraPositions[index];
+          return <div key={label} className={'graph-node '+(frame.active?.includes(index)?'active':'')} style={{left:x+'%',top:y+'%'}}>{label}</div>;
+        })}
+      </div>
+      {frame.rolling && <div className="distance-strip">{frame.rolling.map((v,i)=><span key={i}>{frame.labels?.[i]}<b>{v}</b></span>)}</div>}
+    </VisualShell>
+  );
+}
+
+function TreePathVisualizer({ pattern, frame }: { pattern: Pattern; frame: Frame }) {
+  return (
+    <VisualShell pattern={pattern} frame={frame}>
+      <div className="critical-graph">
+        <svg viewBox="0 0 100 100" preserveAspectRatio="none">
+          {(frame.edges||[]).map(([a,b],i)=>{
+            const path=frame.path||[];
+            const selected=path.some((v,idx)=>idx<path.length-1 && ((v===a&&path[idx+1]===b)||(v===b&&path[idx+1]===a)));
+            return <line key={i} className={selected?'critical-edge':''} x1={dijkstraPositions[a][0]} y1={dijkstraPositions[a][1]} x2={dijkstraPositions[b][0]} y2={dijkstraPositions[b][1]} />;
+          })}
+        </svg>
+        {(frame.labels||[]).map((label,index)=>{
+          const [x,y]=dijkstraPositions[index];
+          return <div key={label} className={'graph-node '+(frame.path?.includes(index)?'visited ':'')+(frame.active?.includes(index)?'active':'')} style={{left:x+'%',top:y+'%'}}>{label}</div>;
+        })}
+      </div>
+      {frame.path && <div className="tree-order"><span>PATH</span>{frame.path.map((n,i)=><b key={i}>{frame.labels?.[n] ?? n}</b>)}</div>}
     </VisualShell>
   );
 }
