@@ -1602,3 +1602,27 @@ blockquote { margin: 22px 0 10px; padding: 18px 20px; border-left: 3px solid var
   .mitm-board { grid-template-columns:1fr; }
   .mitm-target { justify-self:center; }
 }
+
+
+/* Specialized graph/path completion */
+.critical-graph {
+  position:relative;
+  width:min(660px,94%);
+  height:280px;
+  margin:0 auto;
+}
+.critical-graph svg {
+  position:absolute; inset:0; width:100%; height:100%; overflow:visible;
+}
+.critical-graph line {
+  stroke:#3a4d5a; stroke-width:1.6; vector-effect:non-scaling-stroke;
+}
+.critical-graph line.critical-edge {
+  stroke:var(--orange);
+  stroke-width:3;
+  filter:drop-shadow(0 0 3px rgba(255,154,130,.25));
+}
+
+@media(max-width:760px) {
+  .critical-graph { min-width:560px; }
+}
