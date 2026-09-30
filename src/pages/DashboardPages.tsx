@@ -5,6 +5,8 @@ import { arrowForwardOutline, chevronForwardOutline, flashOutline, sparklesOutli
 
 import { patterns } from '../data/patterns';
 import { loadPracticeStats } from '../state/practice';
+import { loadCodingStats } from '../state/coding';
+import { codeProblemsByPattern } from '../data/codeProblems';
 import type { PatternId } from '../types/lesson';
 import { PatternCard } from '../components/PatternCard';
 
@@ -168,6 +170,7 @@ export function Learn(props: { completed: PatternId[]; openLesson: (id: PatternI
 
 export function Progress(props: { completed: PatternId[]; openLesson: (id: PatternId) => void }) {
   const practice = useMemo(() => loadPracticeStats(), []);
+  const coding = useMemo(() => loadCodingStats(), []);
 
   return (
     <div className="page">
@@ -183,15 +186,23 @@ export function Progress(props: { completed: PatternId[]; openLesson: (id: Patte
           const recognitionPct = recognition?.answered
             ? Math.round((recognition.correct / recognition.answered) * 100)
             : null;
+          const codingProblem = codeProblemsByPattern.get(pattern.id);
+          const implementationSolved = codingProblem
+            ? Boolean(coding.byProblem[codingProblem.id]?.solved)
+            : null;
+          const masteryReady = done && (recognitionPct === null || recognitionPct >= 70) && (implementationSolved !== false);
           return (
             <button className="progress-row" key={pattern.id} onClick={() => props.openLesson(pattern.id)}>
               <span className={'status-dot ' + (done ? 'done' : '')} />
               <div>
                 <strong>{pattern.title}</strong>
                 <small>{pattern.invariant}</small>
-                {recognitionPct !== null && <em className="recognition-stat">Recognition {recognitionPct}% · {recognition?.answered} attempts</em>}
+                <div className="mastery-evidence">
+                  {recognitionPct !== null && <em className="recognition-stat">Recognition {recognitionPct}% · {recognition?.answered} attempts</em>}
+                  {implementationSolved !== null && <em className={'implementation-stat ' + (implementationSolved ? 'done' : '')}>Implementation {implementationSolved ? 'solved ✓' : 'pending'}</em>}
+                </div>
               </div>
-              <span className={'mastery-tag ' + (done ? 'done' : '')}>{done ? 'LESSON DONE' : 'LEARNING'}</span>
+              <span className={'mastery-tag ' + (masteryReady ? 'done' : '')}>{masteryReady ? 'MASTERED' : done ? 'LESSON DONE' : 'LEARNING'}</span>
               <IonIcon icon={chevronForwardOutline} />
             </button>
           );
