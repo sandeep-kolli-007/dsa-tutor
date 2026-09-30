@@ -69,6 +69,7 @@ function App() {
                 isComplete={completed.includes(selected.id)}
                 onBack={() => navigate('learn')}
                 onComplete={() => markComplete(selected.id)}
+                openCode={(problemId) => navigate('code', problemId)}
               />
             )}
           </main>
