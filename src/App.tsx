@@ -1,6 +1,6 @@
 import { useMemo, useState } from 'react';
 import { IonContent, IonPage } from '@ionic/react';
-import { barChartOutline, homeOutline, schoolOutline } from 'ionicons/icons';
+import { barChartOutline, flashOutline, homeOutline, schoolOutline } from 'ionicons/icons';
 
 import { patterns } from './data/patterns';
 import { loadProgress, saveProgress } from './state/progress';
@@ -8,6 +8,7 @@ import type { Page, PatternId } from './types/lesson';
 import { NavButton } from './components/NavButton';
 import { Home, Learn, Progress } from './pages/DashboardPages';
 import { Lesson } from './pages/Lesson';
+import { Practice } from './pages/Practice';
 
 function App() {
   const [page, setPage] = useState<Page>('home');
@@ -44,6 +45,7 @@ function App() {
             <nav>
               <NavButton active={page === 'home'} icon={homeOutline} label="Home" onClick={() => setPage('home')} />
               <NavButton active={page === 'learn' || page === 'lesson'} icon={schoolOutline} label="Learn" onClick={() => setPage('learn')} />
+              <NavButton active={page === 'practice'} icon={flashOutline} label="Practice" onClick={() => setPage('practice')} />
               <NavButton active={page === 'progress'} icon={barChartOutline} label="Progress" onClick={() => setPage('progress')} />
             </nav>
 
@@ -56,6 +58,7 @@ function App() {
           <main className="main-stage">
             {page === 'home' && <Home completed={completed} openLesson={openLesson} goLearn={() => setPage('learn')} />}
             {page === 'learn' && <Learn completed={completed} openLesson={openLesson} />}
+            {page === 'practice' && <Practice openLesson={openLesson} />}
             {page === 'progress' && <Progress completed={completed} openLesson={openLesson} />}
             {page === 'lesson' && (
               <Lesson
@@ -70,6 +73,7 @@ function App() {
           <div className="bottom-nav">
             <NavButton active={page === 'home'} icon={homeOutline} label="Home" onClick={() => setPage('home')} />
             <NavButton active={page === 'learn' || page === 'lesson'} icon={schoolOutline} label="Learn" onClick={() => setPage('learn')} />
+            <NavButton active={page === 'practice'} icon={flashOutline} label="Practice" onClick={() => setPage('practice')} />
             <NavButton active={page === 'progress'} icon={barChartOutline} label="Progress" onClick={() => setPage('progress')} />
           </div>
         </div>
