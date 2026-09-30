@@ -874,7 +874,7 @@ export const codeProblems: CodeProblem[] = [
       { name: 'ace', args: ['abcde','ace'], expected: 3 },
       { name: 'identical', args: ['abc','abc'], expected: 3 },
       { name: 'none', args: ['abc','xyz'], expected: 0 },
-      { name: 'repeated chars', args: ['aabcc','adcaa'], expected: 3, hidden: true },
+      { name: 'repeated chars', args: ['aabcc','adcaa'], expected: 2, hidden: true },
     ],
   },
   {
