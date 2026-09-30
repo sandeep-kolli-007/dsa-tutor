@@ -3024,3 +3024,517 @@ blockquote { margin: 22px 0 10px; padding: 18px 20px; border-left: 3px solid var
   .prediction-head { display:grid; }
   .prediction-score { justify-self:start; text-align:left; }
 }
+
+
+/* Mobile layout hardening
+   Keep every page inside the viewport while preserving intentional horizontal
+   scrolling inside algorithm visualizers and code blocks. */
+@media (max-width: 760px) {
+  html,
+  body,
+  #root,
+  ion-app {
+    width: 100%;
+    max-width: 100%;
+    overflow-x: hidden;
+  }
+
+  .main-stage,
+  .page,
+  .lesson-page,
+  .lesson-layout,
+  .lesson-main,
+  .lesson-card,
+  .hero-panel,
+  .mastery-panel,
+  .pattern-card,
+  .principle,
+  .practice-card,
+  .coding-layout,
+  .coding-workspace,
+  .coding-problem-card,
+  .editor-card,
+  .test-card,
+  .solution-reveal,
+  .progress-row,
+  .history-panel,
+  .data-panel,
+  .cloud-panel {
+    min-width: 0;
+    max-width: 100%;
+  }
+
+  .page,
+  .lesson-page {
+    width: 100%;
+    padding-top: max(20px, env(safe-area-inset-top));
+    padding-right: 12px;
+    padding-bottom: calc(108px + env(safe-area-inset-bottom));
+    padding-left: 12px;
+  }
+
+  .bottom-nav {
+    left: 8px;
+    right: 8px;
+    bottom: max(6px, env(safe-area-inset-bottom));
+    grid-template-columns: repeat(5, minmax(0, 1fr));
+    gap: 2px;
+    padding: 5px;
+    border-radius: 13px;
+  }
+
+  .bottom-nav .nav-button {
+    min-width: 0;
+    padding: 6px 2px;
+    gap: 3px;
+    font-size: 7px;
+    overflow: hidden;
+  }
+
+  .bottom-nav .nav-button ion-icon {
+    font-size: 18px;
+    flex: 0 0 auto;
+  }
+
+  .top-header,
+  .lesson-header,
+  .section-title,
+  .explore-heading,
+  .practice-card-top,
+  .coding-title-row,
+  .cloud-panel-title,
+  .history-head,
+  .mistake-sim-head {
+    min-width: 0;
+    gap: 12px;
+  }
+
+  .top-header h1,
+  .compact-header h1 {
+    font-size: clamp(34px, 11vw, 48px);
+    line-height: 1;
+    overflow-wrap: anywhere;
+  }
+
+  .lesson-header h1 {
+    font-size: clamp(38px, 12vw, 56px);
+    line-height: 1;
+    overflow-wrap: anywhere;
+  }
+
+  .hero-panel,
+  .mastery-panel,
+  .lesson-card,
+  .practice-card,
+  .coding-problem-card,
+  .test-card,
+  .solution-reveal,
+  .history-panel,
+  .data-panel,
+  .cloud-panel {
+    padding: 16px;
+  }
+
+  .hero-panel {
+    min-height: auto;
+  }
+
+  .hero-panel h2 {
+    margin-top: 28px;
+    font-size: clamp(30px, 9vw, 42px);
+    overflow-wrap: anywhere;
+  }
+
+  .section-title {
+    align-items: flex-start;
+  }
+
+  .section-title h2,
+  .lesson-card-title h2,
+  .practice-problem h2,
+  .coding-title-row h2,
+  .history-panel h3,
+  .data-panel h3,
+  .cloud-panel h3 {
+    overflow-wrap: anywhere;
+  }
+
+  .complexity-boxes {
+    width: 100%;
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 8px;
+  }
+
+  .complexity-boxes > div {
+    min-width: 0;
+  }
+
+  .lesson-card-title {
+    align-items: flex-start;
+    flex-wrap: wrap;
+  }
+
+  .lesson-card-title > div {
+    min-width: 0;
+    flex: 1 1 180px;
+  }
+
+  .step-number {
+    flex: 0 0 34px;
+  }
+
+  .interactive-chip {
+    margin-left: 46px;
+  }
+
+  .mapping-row {
+    grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
+  }
+
+  .mapping-row span,
+  .mapping-row strong {
+    min-width: 0;
+    overflow-wrap: anywhere;
+  }
+
+  .visual-stage {
+    width: 100%;
+    max-width: 100%;
+    min-height: 260px;
+    padding: 16px 10px;
+    overscroll-behavior-inline: contain;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .visual-topline {
+    gap: 10px;
+    margin-bottom: 36px;
+  }
+
+  .array-row,
+  .trie-board,
+  .weighted-board,
+  .answer-search,
+  .scc-board,
+  .mst-board,
+  .critical-graph,
+  .ancestor-table,
+  .partition-row,
+  .sparse-table-board {
+    max-width: none;
+  }
+
+  .player,
+  .speed-row,
+  .player-buttons {
+    min-width: 0;
+  }
+
+  .speed-row {
+    flex-wrap: wrap;
+  }
+
+  .step-copy {
+    grid-template-columns: 1fr;
+    gap: 6px;
+  }
+
+  blockquote {
+    margin-top: 16px;
+    padding: 14px 15px;
+    font-size: 16px;
+    overflow-wrap: anywhere;
+  }
+
+  .code-window,
+  .code-window pre,
+  .solution-reveal pre {
+    max-width: 100%;
+  }
+
+  .finish-card {
+    padding: 16px;
+  }
+
+  .finish-actions {
+    width: 100%;
+    display: grid;
+    grid-template-columns: 1fr;
+  }
+
+  .finish-actions > *,
+  .finish-actions .primary-button {
+    width: 100%;
+    justify-content: center;
+  }
+
+  .explore-heading {
+    display: grid;
+    align-items: start;
+  }
+
+  .explore-status {
+    justify-self: start;
+  }
+
+  .explore-fields {
+    grid-template-columns: 1fr;
+  }
+
+  .explore-run,
+  .explore-reset {
+    width: 100%;
+  }
+
+  .library-toolbar {
+    grid-template-columns: 1fr;
+    align-items: stretch;
+  }
+
+  .library-count {
+    width: 100%;
+    min-width: 0;
+  }
+
+  .pattern-search input,
+  .explore-fields input,
+  .cloud-signin input {
+    font-size: 16px;
+  }
+
+  .practice-card-top {
+    display: grid;
+    align-items: start;
+  }
+
+  .practice-problem {
+    padding: 22px 0 16px;
+  }
+
+  .practice-scoreboard {
+    gap: 7px;
+  }
+
+  .practice-scoreboard > div {
+    min-width: 0;
+    min-height: 68px;
+    padding: 8px;
+  }
+
+  .practice-scoreboard small,
+  .practice-scoreboard strong {
+    min-width: 0;
+    text-align: center;
+    overflow-wrap: anywhere;
+  }
+
+  .practice-options button {
+    grid-template-columns: 32px minmax(0, 1fr);
+  }
+
+  .coding-summary {
+    gap: 7px;
+  }
+
+  .coding-summary > div {
+    min-width: 0;
+    padding-inline: 8px;
+  }
+
+  .problem-bank {
+    width: 100%;
+    max-width: 100%;
+    overflow: hidden;
+  }
+
+  .problem-list {
+    max-height: 300px;
+  }
+
+  .coding-title-row {
+    display: grid;
+    align-items: start;
+  }
+
+  .coding-solved-chip {
+    justify-self: start;
+  }
+
+  .editor-toolbar {
+    display: grid;
+    align-items: stretch;
+  }
+
+  .editor-file {
+    min-width: 0;
+  }
+
+  .editor-actions {
+    width: 100%;
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 6px;
+  }
+
+  .editor-actions button {
+    width: 100%;
+    min-width: 0;
+  }
+
+  .code-editor-shell {
+    grid-template-columns: 36px minmax(0, 1fr);
+    min-height: 300px;
+    max-width: 100%;
+  }
+
+  .code-line-numbers {
+    padding: 12px 6px;
+  }
+
+  .code-textarea {
+    min-width: 0;
+    min-height: 300px;
+    padding: 12px 10px;
+    font-size: 16px;
+    line-height: 22px;
+  }
+
+  .test-row {
+    grid-template-columns: 28px minmax(0, 1fr);
+  }
+
+  .test-row small {
+    white-space: normal;
+    overflow-wrap: anywhere;
+  }
+
+  .progress-row {
+    padding: 12px;
+    gap: 8px;
+    grid-template-columns: auto minmax(0, 1fr) auto;
+  }
+
+  .progress-row > div,
+  .history-row > div,
+  .data-copy,
+  .cloud-panel > div {
+    min-width: 0;
+  }
+
+  .progress-row small {
+    font-size: 9px;
+    overflow-wrap: anywhere;
+  }
+
+  .history-row {
+    grid-template-columns: 8px minmax(0, 1fr);
+  }
+
+  .history-row em {
+    grid-column: 2;
+    justify-self: start;
+  }
+
+  .data-actions {
+    display: grid;
+    grid-template-columns: 1fr;
+  }
+
+  .data-actions button {
+    width: 100%;
+    justify-content: center;
+  }
+
+  .cloud-panel.disabled {
+    grid-template-columns: 36px minmax(0, 1fr);
+  }
+
+  .cloud-panel-icon {
+    width: 36px;
+    height: 36px;
+  }
+
+  .cloud-panel-title {
+    display: grid;
+  }
+
+  .cloud-panel-title > ion-icon {
+    justify-self: start;
+  }
+
+  .cloud-actions {
+    display: grid;
+    grid-template-columns: 1fr;
+  }
+
+  .cloud-actions button {
+    width: 100%;
+  }
+
+  .prediction-head,
+  .mistake-sim-head {
+    display: grid;
+  }
+
+  .prediction-score {
+    justify-self: start;
+    text-align: left;
+  }
+
+  .mistake-trace > div {
+    grid-template-columns: 24px minmax(0, 1fr);
+  }
+
+  .mistake-trace code {
+    min-width: 0;
+    white-space: normal;
+    overflow-wrap: anywhere;
+  }
+}
+
+@media (max-width: 390px) {
+  .page,
+  .lesson-page {
+    padding-right: 10px;
+    padding-left: 10px;
+  }
+
+  .hero-panel,
+  .mastery-panel,
+  .lesson-card,
+  .practice-card,
+  .coding-problem-card,
+  .test-card,
+  .solution-reveal,
+  .history-panel,
+  .data-panel,
+  .cloud-panel {
+    padding: 14px;
+  }
+
+  .top-header h1,
+  .compact-header h1 {
+    font-size: 34px;
+  }
+
+  .lesson-header h1 {
+    font-size: 40px;
+  }
+
+  .bottom-nav .nav-button {
+    font-size: 6px;
+  }
+
+  .editor-actions {
+    grid-template-columns: 1fr;
+  }
+
+  .practice-scoreboard {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .complexity-boxes {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
