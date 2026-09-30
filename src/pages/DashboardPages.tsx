@@ -10,6 +10,7 @@ import { codeProblemsByPattern } from '../data/codeProblems';
 import type { PatternId } from '../types/lesson';
 import { PatternCard } from '../components/PatternCard';
 import { calculateMastery } from '../engine/mastery';
+import { DataPortability, LearningHistory } from '../components/DataTools';
 
 export function Home(props: { completed: PatternId[]; openLesson: (id: PatternId) => void; goLearn: () => void }) {
   const practice = useMemo(() => loadPracticeStats(), []);
@@ -195,6 +196,11 @@ export function Progress(props: { completed: PatternId[]; openLesson: (id: Patte
         <h1>Pattern mastery.</h1>
         <p>Track which patterns you can explain and recognize, not how many pages you have viewed.</p>
       </header>
+      <div className="progress-insights">
+        <LearningHistory />
+        <DataPortability />
+      </div>
+
       <div className="progress-list">
         {patterns.map((pattern) => {
           const done = props.completed.includes(pattern.id);
