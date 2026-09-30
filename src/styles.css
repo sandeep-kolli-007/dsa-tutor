@@ -2972,3 +2972,55 @@ blockquote { margin: 22px 0 10px; padding: 18px 20px; border-left: 3px solid var
     width: 100%;
   }
 }
+
+
+/* Active prediction */
+.prediction-lab { display:grid; gap:12px; }
+.prediction-head { display:flex; justify-content:space-between; gap:16px; align-items:start; }
+.prediction-head h3 { margin:4px 0; font-size:16px; }
+.prediction-head p { margin:0; color:var(--text-soft); font-size:9px; line-height:1.5; }
+.prediction-score { min-width:72px; border:1px solid var(--border); background:var(--bg-elevated); border-radius:9px; padding:8px 10px; display:grid; gap:3px; text-align:right; }
+.prediction-score small { color:var(--muted); font-size:7px; font-weight:900; }
+.prediction-score strong { color:var(--cyan); font:800 16px ui-monospace,monospace; }
+.prediction-question { border-left:2px solid var(--cyan); padding-left:10px; }
+.prediction-question span { color:var(--cyan); font:800 7px ui-monospace,monospace; }
+.prediction-question h4 { margin:4px 0 0; font-size:13px; }
+.prediction-options { display:grid; gap:7px; }
+.prediction-options button { border:1px solid var(--border); background:var(--bg-elevated); color:var(--text-soft); border-radius:9px; min-height:43px; padding:8px 10px; display:grid; grid-template-columns:24px 1fr; gap:8px; align-items:center; text-align:left; cursor:pointer; }
+.prediction-options button > span { width:24px; height:24px; border:1px solid var(--border-strong); border-radius:6px; display:grid; place-items:center; color:var(--muted); font:800 8px ui-monospace,monospace; }
+.prediction-options button strong { font-size:9px; }
+.prediction-options button.selected { border-color:var(--cyan); background:var(--cyan-dim); }
+.prediction-options button.correct { border-color:var(--green); background:var(--green-dim); }
+.prediction-options button.wrong { border-color:var(--orange); background:var(--orange-dim); }
+.prediction-action { justify-self:start; margin-top:0; }
+.prediction-feedback { border:1px solid var(--border); border-radius:9px; padding:11px; }
+.prediction-feedback.correct { border-color:rgba(109,224,173,.4); background:var(--green-dim); }
+.prediction-feedback.wrong { border-color:rgba(255,154,130,.4); background:var(--orange-dim); }
+.prediction-feedback h4 { margin:4px 0; font-size:12px; }
+.prediction-feedback p { margin:0; color:var(--text-soft); font-size:9px; line-height:1.5; }
+.prediction-reveal { display:grid; gap:7px; }
+
+/* Broken execution trace */
+.mistake-simulator { margin-top:12px; border:1px solid var(--border); background:var(--bg-elevated); border-radius:10px; padding:12px; }
+.mistake-sim-head { display:flex; justify-content:space-between; gap:12px; align-items:start; }
+.mistake-sim-head > div { display:grid; gap:4px; }
+.mistake-sim-head strong { font:750 9px ui-monospace,monospace; color:var(--text-soft); }
+.mistake-sim-head > span { color:var(--orange); font:800 7px ui-monospace,monospace; }
+.mistake-trace { display:grid; gap:5px; margin-top:10px; }
+.mistake-trace > div { display:grid; grid-template-columns:28px 1fr; gap:8px; padding:8px; border:1px solid var(--border); border-radius:7px; opacity:.35; }
+.mistake-trace > div.done { opacity:.65; }
+.mistake-trace > div.active { opacity:1; border-color:var(--orange); background:var(--orange-dim); }
+.mistake-trace span { color:var(--muted); font:800 7px ui-monospace,monospace; }
+.mistake-trace code { color:var(--text-soft); font:750 8px ui-monospace,monospace; }
+.mistake-sim-controls { display:flex; gap:6px; margin-top:9px; }
+.mistake-sim-controls button { border:1px solid var(--border); background:var(--panel); color:var(--text-soft); border-radius:7px; padding:7px 10px; font-size:7px; font-weight:900; cursor:pointer; }
+.mistake-sim-controls button:disabled { opacity:.35; cursor:not-allowed; }
+.mistake-consequence { margin-top:9px; border-left:2px solid var(--orange); padding:8px 10px; background:var(--orange-dim); }
+.mistake-consequence span { color:var(--orange); font-size:7px; font-weight:900; }
+.mistake-consequence p { margin:4px 0 0; color:var(--text-soft); font-size:9px; line-height:1.5; }
+.mistake-simulator.empty p { margin:5px 0 0; color:var(--muted); font-size:9px; }
+
+@media (max-width:760px) {
+  .prediction-head { display:grid; }
+  .prediction-score { justify-self:start; text-align:left; }
+}
