@@ -36,6 +36,14 @@ The goal is to help a learner see an unseen problem and recognize the underlying
 9. Heap / Top-K — live top-3 leaderboard
 10. Backtracking — trying combinations on a lock
 11. Dynamic Programming — reusing known travel costs
+12. Trie — phone-contact autocomplete
+13. Union Find — merging friend circles
+14. Topological Sort — software build dependencies
+15. Greedy — scheduling the most meetings
+16. Bit Manipulation — binary light switches
+17. Binary Search on Answer — minimum truck capacity
+18. 2D Dynamic Programming — city-grid route counts
+19. Dijkstra — weighted navigation routes
 
 ## Run
 
@@ -50,6 +58,6 @@ Production build:
 npm run build
 ```
 
-## Next track
+## Advanced track next
 
-Trie, Union Find, Topological Sort, Greedy, Bit Manipulation, Binary Search on Answer, 2D DP, and Dijkstra.
+Kadane / Maximum Subarray, Cyclic Sort, K-way Merge, Matrix Traversal, Segment Tree, Fenwick Tree, Bellman-Ford, and Floyd-Warshall.
