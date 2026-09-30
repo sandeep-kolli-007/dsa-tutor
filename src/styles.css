@@ -3538,3 +3538,315 @@ blockquote { margin: 22px 0 10px; padding: 18px 20px; border-left: 3px solid var
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 }
+
+
+/* Mobile viewport containment + responsive lesson visualizers */
+html,
+body,
+#root,
+ion-app,
+.app-shell,
+.main-stage {
+  width: 100%;
+  max-width: 100%;
+  overflow-x: hidden;
+}
+
+.page,
+.lesson-page,
+.lesson-layout,
+.lesson-main,
+.lesson-card,
+.lesson-card-title,
+.mapping-grid,
+.mapping-row,
+.visual-stage,
+.player,
+.code-window,
+.recognition-grid,
+.quiz-options,
+.finish-card,
+.coding-layout,
+.coding-workspace,
+.practice-card,
+.progress-list {
+  min-width: 0;
+  max-width: 100%;
+}
+
+.lesson-main,
+.lesson-card,
+.coding-workspace {
+  width: 100%;
+}
+
+.mapping-row > *,
+.lesson-card-title > *,
+.coding-title-row > *,
+.progress-row > * {
+  min-width: 0;
+}
+
+.mapping-row span,
+.mapping-row strong,
+.lesson-card-title h2,
+.lesson-header h1,
+.lesson-header p,
+.large-copy {
+  overflow-wrap: anywhere;
+  word-break: normal;
+}
+
+.visual-stage {
+  width: 100%;
+  overscroll-behavior-x: contain;
+  -webkit-overflow-scrolling: touch;
+}
+
+.code-window {
+  overflow: hidden;
+}
+.code-window pre {
+  max-width: 100%;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+@media (max-width: 980px) {
+  .bottom-nav {
+    grid-template-columns: repeat(5, minmax(0, 1fr));
+  }
+
+  .bottom-nav .nav-button {
+    min-width: 0;
+  }
+
+  .page,
+  .lesson-page {
+    width: 100%;
+    max-width: 100vw;
+  }
+}
+
+@media (max-width: 760px) {
+  .page,
+  .lesson-page {
+    padding: 20px 12px calc(108px + env(safe-area-inset-bottom));
+  }
+
+  .lesson-header {
+    gap: 14px;
+  }
+
+  .lesson-header h1 {
+    font-size: clamp(34px, 10vw, 48px);
+    line-height: 1;
+  }
+
+  .lesson-header p {
+    font-size: 12px;
+    line-height: 1.6;
+  }
+
+  .complexity-boxes {
+    width: 100%;
+    flex-wrap: wrap;
+  }
+
+  .complexity-boxes > div {
+    flex: 1 1 110px;
+    min-width: 0;
+  }
+
+  .lesson-card {
+    width: 100%;
+    padding: 16px;
+    overflow: hidden;
+    border-radius: 13px;
+  }
+
+  .lesson-card-title {
+    align-items: flex-start;
+    flex-wrap: wrap;
+  }
+
+  .lesson-card-title > div {
+    flex: 1 1 190px;
+  }
+
+  .lesson-card-title h2 {
+    font-size: clamp(18px, 5.5vw, 23px);
+    line-height: 1.12;
+  }
+
+  .interactive-chip {
+    margin-left: 0;
+  }
+
+  .large-copy {
+    margin: 18px 0 14px;
+    font-size: 13px;
+    line-height: 1.65;
+  }
+
+  .mapping-grid {
+    width: 100%;
+    grid-template-columns: 1fr;
+  }
+
+  .mapping-row {
+    width: 100%;
+    grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
+    padding: 10px;
+    gap: 7px;
+  }
+
+  .mapping-row span,
+  .mapping-row strong {
+    font-size: 10px;
+    line-height: 1.35;
+  }
+
+  .visual-stage {
+    min-height: 260px;
+    padding: 18px 10px;
+    overflow-x: auto;
+  }
+
+  .visual-topline {
+    min-width: 0;
+    margin-bottom: 34px;
+    gap: 12px;
+    flex-wrap: wrap;
+  }
+
+  .array-row {
+    width: max-content;
+    min-width: max-content;
+    justify-content: flex-start;
+    gap: 6px;
+  }
+
+  .cell-wrap {
+    min-width: 44px;
+  }
+
+  .array-cell {
+    width: 44px;
+    height: 44px;
+    font-size: 13px;
+  }
+
+  .window-readout,
+  .cycle-return,
+  .dp-transition,
+  .dp-grid-rule,
+  .swap-readout,
+  .kmerge-output,
+  .hash-readout,
+  .reversal-rule,
+  .bellman-pass,
+  .floyd-hub {
+    width: auto;
+    max-width: 100%;
+    margin-left: 0;
+    margin-right: 0;
+    flex-wrap: wrap;
+    overflow-wrap: anywhere;
+  }
+
+  .step-copy {
+    grid-template-columns: 1fr;
+    gap: 7px;
+  }
+
+  .player {
+    width: 100%;
+  }
+
+  .finish-actions {
+    width: 100%;
+    justify-content: stretch;
+  }
+
+  .finish-actions button {
+    flex: 1 1 160px;
+    justify-content: center;
+  }
+
+  .coding-layout,
+  .coding-workspace,
+  .editor-card,
+  .coding-problem-card,
+  .test-card {
+    min-width: 0;
+    max-width: 100%;
+  }
+
+  .code-editor-shell {
+    grid-template-columns: 36px minmax(0, 1fr);
+  }
+
+  .code-line-numbers {
+    padding-left: 5px;
+    padding-right: 5px;
+  }
+
+  .code-textarea {
+    min-width: 0;
+    max-width: 100%;
+    padding: 12px 10px;
+  }
+
+  .practice-scoreboard {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 430px) {
+  .page,
+  .lesson-page {
+    padding-left: 10px;
+    padding-right: 10px;
+  }
+
+  .lesson-card,
+  .hero-panel,
+  .mastery-panel {
+    padding: 14px;
+  }
+
+  .bottom-nav {
+    left: 6px;
+    right: 6px;
+    padding: 4px;
+    gap: 2px;
+  }
+
+  .bottom-nav .nav-button {
+    padding: 7px 2px;
+    font-size: 7px;
+  }
+
+  .bottom-nav .nav-button ion-icon {
+    font-size: 17px;
+  }
+
+  .mapping-row {
+    grid-template-columns: minmax(0, 1fr) 16px minmax(0, 1fr);
+  }
+
+  .visual-stage {
+    padding-left: 8px;
+    padding-right: 8px;
+  }
+
+  .cell-wrap {
+    min-width: 40px;
+  }
+
+  .array-cell {
+    width: 40px;
+    height: 40px;
+  }
+}
