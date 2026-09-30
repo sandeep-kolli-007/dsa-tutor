@@ -63,22 +63,65 @@ The goal is to help a learner see an unseen problem and recognize the underlying
 
 ## Coding practice
 
-The current implementation bank includes JavaScript challenges for:
+The implementation bank now includes **24 JavaScript challenges** across:
 
 - Sliding Window
 - Two Pointers
 - Binary Search
 - Prefix Sum
+- Frequency Map
+- Fast / Slow Pointers
 - Monotonic Stack
+- Heap / Top-K
 - Merge Intervals
 - BFS shortest path
+- Backtracking
 - Dynamic Programming
+- Trie
+- Union Find
+- Topological Sort
+- Dijkstra
+- BST search
 - Kadane
 - Difference Array
 - Quickselect
 - Coin Change
+- LCS
+- Edit Distance
+- 0/1 Knapsack
 
 User code executes inside a dedicated Web Worker with a time limit, so infinite loops can be terminated without freezing the UI.
+
+## Progress history, backup and cloud sync
+
+Learning state now includes a local evidence trail for lesson completions, recognition answers and coding attempts.
+
+The Progress screen can export/import a versioned JSON snapshot containing:
+
+- lesson progress
+- adaptive recognition schedule
+- coding attempts and solved problems
+- recent activity
+- code drafts
+
+Optional Supabase cloud sync is included but remains disabled unless deployment environment variables are supplied. Apply `supabase/schema.sql` and configure:
+
+```bash
+VITE_SUPABASE_URL=...
+VITE_SUPABASE_ANON_KEY=...
+```
+
+Authentication uses email magic links and Row Level Security restricts each learner to their own snapshot row.
+
+## PWA / offline
+
+The production app now ships with:
+
+- web app manifest
+- installable app metadata
+- service worker registration
+- runtime caching for same-origin application assets
+- offline fallback to the cached app shell after the first successful load
 
 Mastery is no longer just lesson completion. The app combines:
 
