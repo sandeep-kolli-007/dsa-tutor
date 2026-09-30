@@ -478,7 +478,7 @@ export const codeProblems: CodeProblem[] = [
       { name: 'zero amount', args: [[2,5],0], expected: 0 },
       { name: 'non-greedy optimum', args: [[1,3,4],10], expected: 3, hidden: true },
     ],
-  },,
+  },
   {
     id: 'first-duplicate',
     patternId: 'frequency-map',
