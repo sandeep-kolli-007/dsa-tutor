@@ -28,6 +28,14 @@ The goal is to help a learner see an unseen problem and recognize the underlying
 1. Sliding Window — busiest 3-hour store period
 2. Two Pointers — two people searching a sorted shelf
 3. Binary Search — higher/lower number guessing
+4. Prefix Sum — bank-statement running balances
+5. Fast & Slow Pointers — two runners on a circular track
+6. Monotonic Stack — waiting for the next taller person
+7. Merge Intervals — overlapping calendar meetings
+8. BFS / DFS — message spreading through a friend network
+9. Heap / Top-K — live top-3 leaderboard
+10. Backtracking — trying combinations on a lock
+11. Dynamic Programming — reusing known travel costs
 
 ## Run
 
@@ -42,6 +50,6 @@ Production build:
 npm run build
 ```
 
-## Next patterns
+## Next track
 
-Prefix Sum, Fast & Slow Pointers, Monotonic Stack, Merge Intervals, BFS/DFS, Heap/Top-K, Backtracking, and Dynamic Programming.
+Trie, Union Find, Topological Sort, Greedy, Bit Manipulation, Binary Search on Answer, 2D DP, and Dijkstra.
