@@ -13,7 +13,7 @@ import { CodePractice } from './pages/CodePractice';
 import { useHashNavigation } from './hooks/useHashNavigation';
 
 function App() {
-  const { page, patternId, navigate } = useHashNavigation();
+  const { page, patternId, codeProblemId, navigate } = useHashNavigation();
   const [completed, setCompleted] = useState<PatternId[]>(loadProgress);
   const selectedId = patternId ?? 'sliding-window';
 
@@ -61,7 +61,7 @@ function App() {
             {page === 'home' && <Home completed={completed} openLesson={openLesson} goLearn={() => navigate('learn')} />}
             {page === 'learn' && <Learn completed={completed} openLesson={openLesson} />}
             {page === 'practice' && <Practice openLesson={openLesson} />}
-            {page === 'code' && <CodePractice openLesson={openLesson} />}
+            {page === 'code' && <CodePractice openLesson={openLesson} initialProblemId={codeProblemId} selectProblem={(id) => navigate('code', id)} />}
             {page === 'progress' && <Progress completed={completed} openLesson={openLesson} />}
             {page === 'lesson' && (
               <Lesson
