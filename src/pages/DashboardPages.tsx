@@ -4,11 +4,13 @@ import { IonIcon } from '@ionic/react';
 import { arrowForwardOutline, chevronForwardOutline, flashOutline, sparklesOutline } from 'ionicons/icons';
 
 import { patterns } from '../data/patterns';
+import { loadPracticeStats } from '../state/practice';
 import type { PatternId } from '../types/lesson';
 import { PatternCard } from '../components/PatternCard';
 
 export function Home(props: { completed: PatternId[]; openLesson: (id: PatternId) => void; goLearn: () => void }) {
   const pct = Math.round((props.completed.length / patterns.length) * 100);
+  const nextPattern = patterns.find((pattern) => !props.completed.includes(pattern.id)) ?? patterns[0];
 
   return (
     <div className="page">
@@ -28,8 +30,8 @@ export function Home(props: { completed: PatternId[]; openLesson: (id: PatternId
             Every pattern starts with a real-life situation, becomes a visual state machine,
             then compresses into an invariant and finally into code.
           </p>
-          <button className="primary-button" onClick={() => props.openLesson('sliding-window')}>
-            START WITH SLIDING WINDOW <IonIcon icon={arrowForwardOutline} />
+          <button className="primary-button" onClick={() => props.openLesson(nextPattern.id)}>
+            {props.completed.length ? 'CONTINUE' : 'START'} · {nextPattern.title.toUpperCase()} <IonIcon icon={arrowForwardOutline} />
           </button>
         </article>
 
@@ -165,6 +167,8 @@ export function Learn(props: { completed: PatternId[]; openLesson: (id: PatternI
 }
 
 export function Progress(props: { completed: PatternId[]; openLesson: (id: PatternId) => void }) {
+  const practice = useMemo(() => loadPracticeStats(), []);
+
   return (
     <div className="page">
       <header className="compact-header">
@@ -175,11 +179,19 @@ export function Progress(props: { completed: PatternId[]; openLesson: (id: Patte
       <div className="progress-list">
         {patterns.map((pattern) => {
           const done = props.completed.includes(pattern.id);
+          const recognition = practice.byPattern[pattern.id];
+          const recognitionPct = recognition?.answered
+            ? Math.round((recognition.correct / recognition.answered) * 100)
+            : null;
           return (
             <button className="progress-row" key={pattern.id} onClick={() => props.openLesson(pattern.id)}>
               <span className={'status-dot ' + (done ? 'done' : '')} />
-              <div><strong>{pattern.title}</strong><small>{pattern.invariant}</small></div>
-              <span className={'mastery-tag ' + (done ? 'done' : '')}>{done ? 'COMPLETED' : 'LEARNING'}</span>
+              <div>
+                <strong>{pattern.title}</strong>
+                <small>{pattern.invariant}</small>
+                {recognitionPct !== null && <em className="recognition-stat">Recognition {recognitionPct}% · {recognition?.answered} attempts</em>}
+              </div>
+              <span className={'mastery-tag ' + (done ? 'done' : '')}>{done ? 'LESSON DONE' : 'LEARNING'}</span>
               <IonIcon icon={chevronForwardOutline} />
             </button>
           );
