@@ -1,3 +1,4 @@
+import { useMemo, useState } from 'react';
 import type React from 'react';
 import { IonIcon } from '@ionic/react';
 import { arrowForwardOutline, chevronForwardOutline, flashOutline, sparklesOutline } from 'ionicons/icons';
@@ -53,7 +54,7 @@ export function Home(props: { completed: PatternId[]; openLesson: (id: PatternId
           <button className="text-button" onClick={props.goLearn}>VIEW ALL <IonIcon icon={arrowForwardOutline} /></button>
         </div>
         <div className="pattern-grid">
-          {patterns.map((pattern) => (
+          {patterns.slice(0, 6).map((pattern) => (
             <PatternCard
               key={pattern.id}
               pattern={pattern}
@@ -74,24 +75,84 @@ export function Home(props: { completed: PatternId[]; openLesson: (id: PatternId
 }
 
 export function Learn(props: { completed: PatternId[]; openLesson: (id: PatternId) => void }) {
+  const [query, setQuery] = useState('');
+  const [category, setCategory] = useState('ALL');
+
+  const categories = useMemo(
+    () => ['ALL', ...Array.from(new Set(patterns.map((pattern) => pattern.category))).sort()],
+    []
+  );
+
+  const visiblePatterns = useMemo(() => {
+    const normalized = query.trim().toLowerCase();
+    return patterns.filter((pattern) => {
+      const categoryMatch = category === 'ALL' || pattern.category === category;
+      if (!categoryMatch) return false;
+      if (!normalized) return true;
+      return [
+        pattern.title,
+        pattern.subtitle,
+        pattern.category,
+        pattern.summary,
+        pattern.invariant,
+        ...pattern.signals,
+      ].some((value) => value.toLowerCase().includes(normalized));
+    });
+  }, [query, category]);
+
   return (
     <div className="page">
       <header className="compact-header">
         <span className="eyebrow">PATTERN LIBRARY</span>
         <h1>Learn recognition, not chapters.</h1>
-        <p>Each lesson moves from a relatable story to the invariant that makes the pattern reusable.</p>
+        <p>Search by a pattern name, a clue from a problem statement, or the mental model you want to practice.</p>
       </header>
-      <div className="track-line"><span>FOUNDATIONS</span><i /></div>
-      <div className="pattern-grid">
-        {patterns.map((pattern) => (
-          <PatternCard
-            key={pattern.id}
-            pattern={pattern}
-            complete={props.completed.includes(pattern.id)}
-            onClick={() => props.openLesson(pattern.id)}
+
+      <section className="library-toolbar">
+        <label className="pattern-search">
+          <span>SEARCH THE 65-PATTERN CURRICULUM</span>
+          <input
+            value={query}
+            onChange={(event) => setQuery(event.target.value)}
+            placeholder="Try: contiguous, top k, prerequisite, palindrome..."
           />
+        </label>
+        <div className="library-count"><strong>{visiblePatterns.length}</strong><span>VISIBLE</span></div>
+      </section>
+
+      <div className="category-scroller">
+        {categories.map((item) => (
+          <button
+            key={item}
+            className={category === item ? 'active' : ''}
+            onClick={() => setCategory(item)}
+          >
+            {item}
+          </button>
         ))}
       </div>
+
+      <div className="track-line"><span>{category === 'ALL' ? 'ALL PATTERNS' : category}</span><i /></div>
+
+      {visiblePatterns.length > 0 ? (
+        <div className="pattern-grid">
+          {visiblePatterns.map((pattern) => (
+            <PatternCard
+              key={pattern.id}
+              pattern={pattern}
+              complete={props.completed.includes(pattern.id)}
+              onClick={() => props.openLesson(pattern.id)}
+            />
+          ))}
+        </div>
+      ) : (
+        <div className="empty-library">
+          <span className="eyebrow">NO MATCH</span>
+          <strong>Try a broader clue.</strong>
+          <p>Search works across titles, summaries, invariants, categories and recognition signals.</p>
+        </div>
+      )}
+
       <div className="coming-grid">
         <div className="curriculum-complete">
           <span className="eyebrow">STANDARD INTERVIEW CURRICULUM COMPLETE</span>
