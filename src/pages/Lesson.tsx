@@ -14,6 +14,8 @@ import {
 import type { Frame, Pattern } from '../types/lesson';
 import { Visualizer } from '../components/visualizers/Visualizer';
 import { ExplorePanel } from '../components/ExplorePanel';
+import { MistakeLab } from '../components/MistakeLab';
+import { mistakes } from '../data/mistakes';
 
 export function Lesson(props: { pattern: Pattern; isComplete: boolean; onBack: () => void; onComplete: () => void }) {
   const { pattern } = props;
@@ -49,6 +51,9 @@ export function Lesson(props: { pattern: Pattern; isComplete: boolean; onBack: (
 
   const frame = frames[Math.min(index, frames.length - 1)];
   const quizCorrect = choice === pattern.quiz.correct;
+  const hasMistakes = Boolean(mistakes[pattern.id]?.length);
+  const recognitionStep = hasMistakes ? '06' : '05';
+  const quizStep = hasMistakes ? '07' : '06';
 
   return (
     <div className="lesson-page">
@@ -134,14 +139,20 @@ export function Lesson(props: { pattern: Pattern; isComplete: boolean; onBack: (
             <p className="hint">If you can explain this without looking at the template, you understand the pattern.</p>
           </LessonCard>
 
-          <LessonCard number="05" eyebrow="RECOGNIZE IT" title="When should this enter your mind?">
+          {hasMistakes && (
+            <LessonCard number="05" eyebrow="MISTAKE LAB" title="Watch the invariant break">
+              <MistakeLab patternId={pattern.id} />
+            </LessonCard>
+          )}
+
+          <LessonCard number={recognitionStep} eyebrow="RECOGNIZE IT" title="When should this enter your mind?">
             <div className="recognition-grid">
               <div><h3>LOOK FOR</h3>{pattern.signals.map((item) => <p className="signal yes" key={item}>✓ {item}</p>)}</div>
               <div><h3>BE CAREFUL WHEN</h3>{pattern.avoid.map((item) => <p className="signal no" key={item}>× {item}</p>)}</div>
             </div>
           </LessonCard>
 
-          <LessonCard number="06" eyebrow="PATTERN CHECK" title="Recognize before you code">
+          <LessonCard number={quizStep} eyebrow="PATTERN CHECK" title="Recognize before you code">
             <p className="quiz-question">{pattern.quiz.question}</p>
             <div className="quiz-options">
               {pattern.quiz.options.map((option, optionIndex) => {
