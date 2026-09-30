@@ -23,6 +23,7 @@ export function parseHash(hash: string): RouteState {
 
   if (path[0] === 'learn') return { page: 'learn' };
   if (path[0] === 'practice') return { page: 'practice' };
+  if (path[0] === 'code') return { page: 'code' };
   if (path[0] === 'progress') return { page: 'progress' };
   return { page: 'home' };
 }
