@@ -7,6 +7,7 @@ describe('hash navigation', () => {
     expect(parseHash('#/')).toEqual({ page: 'home' });
     expect(parseHash('#/learn')).toEqual({ page: 'learn' });
     expect(parseHash('#/practice')).toEqual({ page: 'practice' });
+    expect(parseHash('#/code')).toEqual({ page: 'code' });
     expect(parseHash('#/progress')).toEqual({ page: 'progress' });
   });
 
@@ -24,6 +25,7 @@ describe('hash navigation', () => {
   it('creates stable shareable hashes', () => {
     expect(hashFor('home')).toBe('#/');
     expect(hashFor('practice')).toBe('#/practice');
+    expect(hashFor('code')).toBe('#/code');
     expect(hashFor('lesson', 'sliding-window')).toBe('#/lesson/sliding-window');
   });
 });
