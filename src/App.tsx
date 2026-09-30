@@ -2139,23 +2139,26 @@ function MiniVisual({ id }: { id: PatternId }) {
   if (id === 'sliding-window') {
     return <div className="mini-visual"><i /><i className="hot" /><i className="hot" /><i className="hot" /><i /></div>;
   }
-  if (id === 'two-pointers' || id === 'fast-slow') {
+  if (id === 'two-pointers' || id === 'fast-slow' || id === 'binary-search-answer') {
     return <div className="mini-visual pointers"><b>L</b><i /><i /><i /><i /><i /><b>R</b></div>;
   }
-  if (id === 'prefix-sum' || id === 'dynamic-programming') {
+  if (id === 'prefix-sum' || id === 'dynamic-programming' || id === 'dp-2d') {
     return <div className="mini-visual steps"><i /><i className="hot" /><i className="hot tall" /><i className="found taller" /><i /></div>;
   }
   if (id === 'monotonic-stack' || id === 'heap-top-k') {
     return <div className="mini-visual stack-mini"><i /><i className="hot" /><i className="found" /></div>;
   }
-  if (id === 'merge-intervals') {
+  if (id === 'merge-intervals' || id === 'greedy') {
     return <div className="mini-visual intervals-mini"><i /><i className="hot" /><i /></div>;
   }
-  if (id === 'graph-traversal') {
+  if (id === 'graph-traversal' || id === 'topological-sort' || id === 'dijkstra' || id === 'union-find') {
     return <div className="mini-visual graph-mini"><i /><i className="hot" /><i /><i className="found" /><i /></div>;
   }
-  if (id === 'backtracking') {
+  if (id === 'backtracking' || id === 'trie') {
     return <div className="mini-visual branch-mini"><i /><i /><i className="hot" /><i /><i /></div>;
+  }
+  if (id === 'bit-manipulation') {
+    return <div className="mini-visual bits-mini"><b>1</b><b>0</b><b>1</b><b>1</b><b>0</b></div>;
   }
   return <div className="mini-visual binary"><i className="dim" /><i className="dim" /><i /><i className="found" /><i /></div>;
 }
@@ -2354,6 +2357,14 @@ function Visualizer({ pattern, frame }: { pattern: Pattern; frame: Frame }) {
   if (pattern.id === 'heap-top-k') return <HeapVisualizer pattern={pattern} frame={frame} />;
   if (pattern.id === 'backtracking') return <BacktrackingVisualizer pattern={pattern} frame={frame} />;
   if (pattern.id === 'dynamic-programming') return <DPVisualizer pattern={pattern} frame={frame} />;
+  if (pattern.id === 'trie') return <TrieVisualizer pattern={pattern} frame={frame} />;
+  if (pattern.id === 'union-find') return <UnionFindVisualizer pattern={pattern} frame={frame} />;
+  if (pattern.id === 'topological-sort') return <TopoVisualizer pattern={pattern} frame={frame} />;
+  if (pattern.id === 'greedy') return <GreedyVisualizer pattern={pattern} frame={frame} />;
+  if (pattern.id === 'bit-manipulation') return <BitVisualizer pattern={pattern} frame={frame} />;
+  if (pattern.id === 'binary-search-answer') return <AnswerSearchVisualizer pattern={pattern} frame={frame} />;
+  if (pattern.id === 'dp-2d') return <DPGridVisualizer pattern={pattern} frame={frame} />;
+  if (pattern.id === 'dijkstra') return <DijkstraVisualizer pattern={pattern} frame={frame} />;
   return <ArrayVisualizer pattern={pattern} frame={frame} />;
 }
 
@@ -2567,6 +2578,225 @@ function DPVisualizer({ pattern, frame }: { pattern: Pattern; frame: Frame }) {
         ))}
       </div>
       <div className="dp-transition">dp[i] = dp[i − 1] + dp[i − 2]</div>
+    </VisualShell>
+  );
+}
+
+
+const triePositions = [
+  [50, 8], [50, 28], [50, 48], [24, 74], [50, 74], [76, 74]
+];
+
+function TrieVisualizer({ pattern, frame }: { pattern: Pattern; frame: Frame }) {
+  return (
+    <VisualShell pattern={pattern} frame={frame}>
+      <div className="trie-board">
+        <svg viewBox="0 0 100 100" preserveAspectRatio="none">
+          {(frame.edges || []).map(([a,b], index) => (
+            <line key={index} x1={triePositions[a][0]} y1={triePositions[a][1]} x2={triePositions[b][0]} y2={triePositions[b][1]} />
+          ))}
+        </svg>
+        {(frame.labels || []).map((label, index) => {
+          const [x,y] = triePositions[index];
+          const active = frame.active?.includes(index);
+          return (
+            <div key={label + index} className={'trie-node ' + (active ? 'active' : '')} style={{ left: x + '%', top: y + '%' }}>
+              {label}
+            </div>
+          );
+        })}
+      </div>
+      <div className="trie-path">
+        <span>PATH</span>
+        {(frame.triePath || []).map((part, index) => <b key={index}>{part}</b>)}
+      </div>
+      <div className="word-strip">
+        {(frame.words || []).map((word) => <span key={word}>{word}</span>)}
+      </div>
+    </VisualShell>
+  );
+}
+
+function UnionFindVisualizer({ pattern, frame }: { pattern: Pattern; frame: Frame }) {
+  const groups = new Map<number, number[]>();
+  (frame.parents || []).forEach((parent, index) => {
+    const root = parent;
+    if (!groups.has(root)) groups.set(root, []);
+    groups.get(root)!.push(index);
+  });
+  return (
+    <VisualShell pattern={pattern} frame={frame}>
+      <div className="uf-board">
+        {Array.from(groups.entries()).map(([root, members]) => (
+          <div className="uf-group" key={root}>
+            <small>ROOT {frame.labels?.[root]}</small>
+            <div>
+              {members.map((member) => (
+                <span key={member} className={frame.selected?.includes(member) ? 'active' : ''}>
+                  {frame.labels?.[member] ?? member}
+                </span>
+              ))}
+            </div>
+          </div>
+        ))}
+      </div>
+      <div className="parent-strip">
+        {(frame.parents || []).map((parent, index) => (
+          <span key={index}>{frame.labels?.[index]} → {frame.labels?.[parent]}</span>
+        ))}
+      </div>
+    </VisualShell>
+  );
+}
+
+const topoPositions = [[18,18],[18,72],[62,18],[72,72]];
+
+function TopoVisualizer({ pattern, frame }: { pattern: Pattern; frame: Frame }) {
+  return (
+    <VisualShell pattern={pattern} frame={frame}>
+      <div className="topo-layout">
+        <div className="topo-board">
+          <svg viewBox="0 0 100 100" preserveAspectRatio="none">
+            {(frame.edges || []).map(([a,b], index) => (
+              <line key={index} x1={topoPositions[a][0]} y1={topoPositions[a][1]} x2={topoPositions[b][0]} y2={topoPositions[b][1]} />
+            ))}
+          </svg>
+          {(frame.labels || []).map((label,index) => {
+            const [x,y] = topoPositions[index];
+            return (
+              <div key={label} className={'topo-node ' + (frame.visited?.includes(index) ? 'visited ' : '') + (frame.active?.includes(index) ? 'active' : '')} style={{ left:x+'%', top:y+'%' }}>
+                <b>{label}</b><small>in {frame.indegree?.[index] ?? 0}</small>
+              </div>
+            );
+          })}
+        </div>
+        <div className="topo-queue">
+          <small>READY QUEUE</small>
+          <div>{(frame.queue || []).map((n) => <b key={n}>{frame.labels?.[n]}</b>)}</div>
+        </div>
+      </div>
+    </VisualShell>
+  );
+}
+
+function GreedyVisualizer({ pattern, frame }: { pattern: Pattern; frame: Frame }) {
+  const max = 10;
+  return (
+    <VisualShell pattern={pattern} frame={frame}>
+      <div className="greedy-board">
+        <div className="visual-caption">MEETINGS SORTED BY FINISH TIME</div>
+        {(frame.intervals || []).map(([start,end], index) => (
+          <div className="greedy-track" key={index}>
+            <div
+              className={'greedy-bar ' + (frame.selected?.includes(index) ? 'selected ' : '') + (frame.active?.includes(index) ? 'active ' : '') + (frame.dimmed?.includes(index) ? 'rejected' : '')}
+              style={{ left: (start/max*100)+'%', width: ((end-start)/max*100)+'%' }}
+            >
+              [{start},{end}]
+            </div>
+          </div>
+        ))}
+      </div>
+      <div className="greedy-legend"><span className="take">TAKE</span><span className="skip">SKIP OVERLAP</span></div>
+    </VisualShell>
+  );
+}
+
+function BitVisualizer({ pattern, frame }: { pattern: Pattern; frame: Frame }) {
+  return (
+    <VisualShell pattern={pattern} frame={frame}>
+      <div className="bit-board">
+        {(frame.bits || []).map((bit,index) => (
+          <div key={index} className={'bit-cell ' + (frame.active?.includes(index) ? 'active' : '')}>
+            <small>{index}</small>
+            <strong>{bit}</strong>
+          </div>
+        ))}
+      </div>
+      <div className="bit-ops">
+        <span>AND &</span><span>OR |</span><span>XOR ^</span><span>SHIFT &lt;&lt; &gt;&gt;</span>
+      </div>
+    </VisualShell>
+  );
+}
+
+function AnswerSearchVisualizer({ pattern, frame }: { pattern: Pattern; frame: Frame }) {
+  const [low, high] = frame.range || [0, 0];
+  const min = 6;
+  const max = 21;
+  const leftPct = ((low - min) / (max - min)) * 100;
+  const rightPct = ((high - min) / (max - min)) * 100;
+  const candidatePct = (((frame.candidate ?? low) - min) / (max - min)) * 100;
+  return (
+    <VisualShell pattern={pattern} frame={frame}>
+      <div className="answer-search">
+        <div className="answer-scale">
+          {Array.from({length: max-min+1}, (_,i) => <span key={i}>{i+min}</span>)}
+        </div>
+        <div className="answer-line">
+          <i className="answer-range" style={{ left:leftPct+'%', width:Math.max(2,rightPct-leftPct)+'%' }} />
+          <b className={'candidate ' + (frame.feasible ? 'yes' : 'no')} style={{ left:candidatePct+'%' }}>{frame.candidate}</b>
+        </div>
+        <div className="answer-labels"><span>TOO SMALL</span><strong>{frame.feasible ? 'FEASIBLE ✓' : 'NOT FEASIBLE ×'}</strong><span>SEARCH BOUNDARY</span></div>
+      </div>
+    </VisualShell>
+  );
+}
+
+function DPGridVisualizer({ pattern, frame }: { pattern: Pattern; frame: Frame }) {
+  return (
+    <VisualShell pattern={pattern} frame={frame}>
+      <div className="dp-grid">
+        {(frame.grid || []).map((row,r) =>
+          row.map((value,c) => {
+            const active = frame.cell?.[0] === r && frame.cell?.[1] === c;
+            const dependency = frame.cell && ((r === frame.cell[0]-1 && c === frame.cell[1]) || (r === frame.cell[0] && c === frame.cell[1]-1));
+            return (
+              <div key={r+'-'+c} className={'dp-grid-cell ' + (active ? 'active ' : '') + (dependency ? 'dependency' : '')}>
+                <small>[{r},{c}]</small><strong>{value}</strong>
+              </div>
+            );
+          })
+        )}
+      </div>
+      <div className="dp-grid-rule">FROM TOP ↓ + FROM LEFT →</div>
+    </VisualShell>
+  );
+}
+
+const dijkstraPositions = [[12,45],[38,15],[38,78],[68,35],[90,62]];
+
+function DijkstraVisualizer({ pattern, frame }: { pattern: Pattern; frame: Frame }) {
+  return (
+    <VisualShell pattern={pattern} frame={frame}>
+      <div className="weighted-board">
+        <svg viewBox="0 0 100 100" preserveAspectRatio="none">
+          {(frame.weights || []).map(([a,b,w],index) => {
+            const x = (dijkstraPositions[a][0] + dijkstraPositions[b][0]) / 2;
+            const y = (dijkstraPositions[a][1] + dijkstraPositions[b][1]) / 2;
+            return (
+              <g key={index}>
+                <line x1={dijkstraPositions[a][0]} y1={dijkstraPositions[a][1]} x2={dijkstraPositions[b][0]} y2={dijkstraPositions[b][1]} />
+                <text x={x} y={y}>{w}</text>
+              </g>
+            );
+          })}
+        </svg>
+        {(frame.labels || []).map((label,index) => {
+          const [x,y] = dijkstraPositions[index];
+          const active = frame.active?.includes(index);
+          const visited = frame.visited?.includes(index);
+          const distance = frame.distances?.[index];
+          return (
+            <div key={label} className={'weighted-node ' + (visited ? 'visited ' : '') + (active ? 'active' : '')} style={{ left:x+'%', top:y+'%' }}>
+              <b>{label}</b><small>{distance === 99 ? '∞' : distance}</small>
+            </div>
+          );
+        })}
+      </div>
+      <div className="queue-strip">
+        <span>MIN-HEAP</span>
+        {(frame.queue || []).map((node) => <b key={node}>{frame.labels?.[node]}:{frame.distances?.[node] === 99 ? '∞' : frame.distances?.[node]}</b>)}
+      </div>
     </VisualShell>
   );
 }
