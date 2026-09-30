@@ -2619,3 +2619,48 @@ blockquote { margin: 22px 0 10px; padding: 18px 20px; border-left: 3px solid var
   .test-row { grid-template-columns: 30px 1fr; }
   .test-row em { grid-column: 2; }
 }
+
+
+/* Evidence-based mastery */
+.progress-row {
+  grid-template-columns: auto minmax(0,1fr) 110px auto auto;
+}
+.mastery-score-stat {
+  color: var(--text-soft);
+  font: 800 7px ui-monospace, monospace;
+  font-style: normal;
+  letter-spacing: .05em;
+}
+.mastery-meter {
+  width: 110px;
+  height: 5px;
+  overflow: hidden;
+  border-radius: 999px;
+  background: var(--bg-elevated);
+  border: 1px solid var(--border);
+}
+.mastery-meter i {
+  display: block;
+  height: 100%;
+  min-width: 0;
+  border-radius: inherit;
+  background: linear-gradient(90deg, var(--cyan), var(--green));
+  transition: width .2s ease;
+}
+
+@media (max-width: 760px) {
+  .progress-row {
+    grid-template-columns: auto minmax(0,1fr) auto;
+  }
+  .progress-row .mastery-meter {
+    grid-column: 2 / -1;
+    width: 100%;
+  }
+  .progress-row .mastery-tag {
+    grid-column: 2;
+  }
+  .progress-row > ion-icon {
+    grid-column: 3;
+    grid-row: 1;
+  }
+}
