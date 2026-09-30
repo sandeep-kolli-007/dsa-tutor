@@ -1,11 +1,14 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 
 import { mistakes } from '../data/mistakes';
 import type { PatternId } from '../types/lesson';
+import { MistakeSimulator } from './MistakeSimulator';
 
 export function MistakeLab({ patternId }: { patternId: PatternId }) {
   const cases = mistakes[patternId];
   const [active, setActive] = useState(0);
+
+  useEffect(() => setActive(0), [patternId]);
 
   if (!cases?.length) return null;
 
@@ -29,20 +32,13 @@ export function MistakeLab({ patternId }: { patternId: PatternId }) {
         </div>
 
         <div className="mistake-explanation">
-          <div>
-            <span>SYMPTOM</span>
-            <p>{current.symptom}</p>
-          </div>
-          <div>
-            <span>WHY IT BREAKS</span>
-            <p>{current.why}</p>
-          </div>
-          <div className="mistake-rule">
-            <span>CORRECT MENTAL RULE</span>
-            <strong>{current.rule}</strong>
-          </div>
+          <div><span>SYMPTOM</span><p>{current.symptom}</p></div>
+          <div><span>WHY IT BREAKS</span><p>{current.why}</p></div>
+          <div className="mistake-rule"><span>CORRECT MENTAL RULE</span><strong>{current.rule}</strong></div>
         </div>
       </div>
+
+      <MistakeSimulator patternId={patternId} caseIndex={active} />
     </div>
   );
 }
