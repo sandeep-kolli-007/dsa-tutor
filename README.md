@@ -66,10 +66,42 @@ Production build:
 npm run build
 ```
 
-## Expert track next
+## Curriculum completion
 
-KMP, Rabin-Karp, Strongly Connected Components, Prim MST, Kruskal MST, A* Search, Sparse Table, and advanced DP optimization.
+The standard interview curriculum is now complete with **65 visual topics**.
 
+The later additions include:
+
+- Hash / Frequency Map
+- Linked List Reversal
+- Tree Traversals
+- BST Search & Insert
+- LCA / Binary Lifting
+- LIS
+- 0/1 Knapsack
+- LCS
+- Edit Distance
+- Coin Change
+- Difference Array
+- Sweep Line
+- Monotonic Queue
+- Quickselect
+- Dutch National Flag
+- Meet in the Middle
+- Merge Sort
+- Quicksort
+- Counting Sort
+- Z Algorithm
+- Manacher
+- Aho-Corasick
+- Eulerian Path / Circuit
+- Bridges & Articulation Points
+- 0-1 BFS
+- Multi-source BFS
+- Tree Diameter
+- Tree DP
+- Bitmask DP
+- Digit DP
 
 ## CI
 
