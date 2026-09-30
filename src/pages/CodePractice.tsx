@@ -22,8 +22,10 @@ function loadDraft(problem: CodeProblem) {
 
 export function CodePractice(props: {
   openLesson: (id: PatternId) => void;
+  initialProblemId?: string;
+  selectProblem: (id: string) => void;
 }) {
-  const [selectedId, setSelectedId] = useState(codeProblems[0].id);
+  const [selectedId, setSelectedId] = useState(props.initialProblemId ?? codeProblems[0].id);
   const selected = useMemo(
     () => codeProblems.find((problem) => problem.id === selectedId) ?? codeProblems[0],
     [selectedId]
@@ -42,11 +44,15 @@ export function CodePractice(props: {
   );
 
   useEffect(() => {
+    if (props.initialProblemId && props.initialProblemId !== selectedId) {
+      setSelectedId(props.initialProblemId);
+      return;
+    }
     setCode(loadDraft(selected));
     setResult(null);
     setHintCount(0);
     setShowSolution(false);
-  }, [selected.id]);
+  }, [props.initialProblemId, selected.id, selectedId]);
 
   const updateCode = (value: string) => {
     setCode(value);
@@ -120,7 +126,10 @@ export function CodePractice(props: {
                 <button
                   key={problem.id}
                   className={'problem-list-item ' + (problem.id === selected.id ? 'active ' : '') + (problemStats?.solved ? 'solved' : '')}
-                  onClick={() => setSelectedId(problem.id)}
+                  onClick={() => {
+                    setSelectedId(problem.id);
+                    props.selectProblem(problem.id);
+                  }}
                 >
                   <span className="problem-number">{String(index + 1).padStart(2,'0')}</span>
                   <span className="problem-list-copy">
