@@ -11,8 +11,9 @@ import {
   refreshOutline,
 } from 'ionicons/icons';
 
-import type { Pattern } from '../types/lesson';
+import type { Frame, Pattern } from '../types/lesson';
 import { Visualizer } from '../components/visualizers/Visualizer';
+import { ExplorePanel } from '../components/ExplorePanel';
 
 export function Lesson(props: { pattern: Pattern; isComplete: boolean; onBack: () => void; onComplete: () => void }) {
   const { pattern } = props;
@@ -21,19 +22,22 @@ export function Lesson(props: { pattern: Pattern; isComplete: boolean; onBack: (
   const [speed, setSpeed] = useState(1);
   const [choice, setChoice] = useState<number | null>(null);
   const [submitted, setSubmitted] = useState(false);
+  const [customFrames, setCustomFrames] = useState<Frame[] | null>(null);
+  const frames = customFrames ?? pattern.frames;
 
   useEffect(() => {
     setIndex(0);
     setPlaying(false);
     setChoice(null);
     setSubmitted(false);
+    setCustomFrames(null);
   }, [pattern.id]);
 
   useEffect(() => {
     if (!playing) return;
     const timer = window.setInterval(() => {
       setIndex((current) => {
-        if (current >= pattern.frames.length - 1) {
+        if (current >= frames.length - 1) {
           setPlaying(false);
           return current;
         }
@@ -41,9 +45,9 @@ export function Lesson(props: { pattern: Pattern; isComplete: boolean; onBack: (
       });
     }, 1300 / speed);
     return () => window.clearInterval(timer);
-  }, [playing, speed, pattern.frames.length]);
+  }, [playing, speed, frames.length]);
 
-  const frame = pattern.frames[index];
+  const frame = frames[Math.min(index, frames.length - 1)];
   const quizCorrect = choice === pattern.quiz.correct;
 
   return (
@@ -85,11 +89,11 @@ export function Lesson(props: { pattern: Pattern; isComplete: boolean; onBack: (
                 <button onClick={() => setIndex(0)}><IonIcon icon={refreshOutline} /></button>
                 <button onClick={() => setIndex(Math.max(0, index - 1))}><IonIcon icon={chevronBackOutline} /></button>
                 <button className="play-button" onClick={() => setPlaying(!playing)}><IonIcon icon={playing ? pauseOutline : playOutline} /></button>
-                <button onClick={() => setIndex(Math.min(pattern.frames.length - 1, index + 1))}><IonIcon icon={chevronForwardOutline} /></button>
+                <button onClick={() => setIndex(Math.min(frames.length - 1, index + 1))}><IonIcon icon={chevronForwardOutline} /></button>
               </div>
               <IonRange
                 min={0}
-                max={pattern.frames.length - 1}
+                max={frames.length - 1}
                 step={1}
                 value={index}
                 onIonInput={(event) => setIndex(Number(event.detail.value))}
@@ -101,6 +105,15 @@ export function Lesson(props: { pattern: Pattern; isComplete: boolean; onBack: (
                 ))}
               </div>
             </div>
+
+            <ExplorePanel
+              patternId={pattern.id}
+              onFrames={(nextFrames) => {
+                setCustomFrames(nextFrames);
+                setIndex(0);
+                setPlaying(false);
+              }}
+            />
           </LessonCard>
 
           <LessonCard number="03" eyebrow="CONNECT VISUAL → CODE" title="The line that explains the movement">
