@@ -1,6 +1,6 @@
 import { useMemo, useState } from 'react';
 import { IonContent, IonPage } from '@ionic/react';
-import { barChartOutline, flashOutline, homeOutline, schoolOutline } from 'ionicons/icons';
+import { barChartOutline, codeSlashOutline, flashOutline, homeOutline, schoolOutline } from 'ionicons/icons';
 
 import { patterns } from './data/patterns';
 import { loadProgress, saveProgress } from './state/progress';
@@ -9,6 +9,7 @@ import { NavButton } from './components/NavButton';
 import { Home, Learn, Progress } from './pages/DashboardPages';
 import { Lesson } from './pages/Lesson';
 import { Practice } from './pages/Practice';
+import { CodePractice } from './pages/CodePractice';
 import { useHashNavigation } from './hooks/useHashNavigation';
 
 function App() {
@@ -46,6 +47,7 @@ function App() {
               <NavButton active={page === 'home'} icon={homeOutline} label="Home" onClick={() => navigate('home')} />
               <NavButton active={page === 'learn' || page === 'lesson'} icon={schoolOutline} label="Learn" onClick={() => navigate('learn')} />
               <NavButton active={page === 'practice'} icon={flashOutline} label="Practice" onClick={() => navigate('practice')} />
+              <NavButton active={page === 'code'} icon={codeSlashOutline} label="Code" onClick={() => navigate('code')} />
               <NavButton active={page === 'progress'} icon={barChartOutline} label="Progress" onClick={() => navigate('progress')} />
             </nav>
 
@@ -59,6 +61,7 @@ function App() {
             {page === 'home' && <Home completed={completed} openLesson={openLesson} goLearn={() => navigate('learn')} />}
             {page === 'learn' && <Learn completed={completed} openLesson={openLesson} />}
             {page === 'practice' && <Practice openLesson={openLesson} />}
+            {page === 'code' && <CodePractice openLesson={openLesson} />}
             {page === 'progress' && <Progress completed={completed} openLesson={openLesson} />}
             {page === 'lesson' && (
               <Lesson
