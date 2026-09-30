@@ -2697,3 +2697,137 @@ blockquote { margin: 22px 0 10px; padding: 18px 20px; border-left: 3px solid var
 .finish-actions .primary-button {
   margin-top: 0;
 }
+
+
+/* Progress history + data portability */
+.progress-insights {
+  display: grid;
+  grid-template-columns: minmax(0,1fr) minmax(0,1fr);
+  gap: 12px;
+  margin-bottom: 14px;
+}
+.history-panel,
+.data-panel {
+  border: 1px solid var(--border);
+  background: linear-gradient(180deg, rgba(23,34,44,.99), rgba(16,24,32,.99));
+  border-radius: 14px;
+  padding: 16px;
+}
+.history-panel h3,
+.data-panel h3 {
+  margin: 5px 0 0;
+  font-size: 17px;
+}
+.history-panel.empty p,
+.data-copy p {
+  color: var(--text-soft);
+  margin: 7px 0 0;
+  font-size: 9px;
+  line-height: 1.55;
+}
+.history-head {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  align-items: start;
+}
+.history-head > span {
+  color: var(--muted);
+  font-size: 7px;
+  font-weight: 800;
+}
+.history-list {
+  display: grid;
+  gap: 6px;
+  margin-top: 12px;
+}
+.history-row {
+  display: grid;
+  grid-template-columns: 10px 1fr auto;
+  gap: 9px;
+  align-items: center;
+  border-top: 1px solid var(--border);
+  padding-top: 8px;
+}
+.history-row:first-child {
+  border-top: 0;
+  padding-top: 0;
+}
+.history-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--green);
+}
+.history-dot.failed { background: var(--orange); }
+.history-row > div {
+  display: grid;
+  gap: 2px;
+}
+.history-row strong { font-size: 9px; }
+.history-row small { color: var(--muted); font-size: 7px; }
+.history-row em {
+  color: var(--muted-2);
+  font: 700 7px ui-monospace, monospace;
+  font-style: normal;
+}
+
+.data-panel {
+  display: grid;
+  gap: 12px;
+}
+.data-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 7px;
+}
+.data-actions button {
+  min-height: 34px;
+  border: 1px solid var(--border);
+  background: var(--bg-elevated);
+  color: var(--text-soft);
+  border-radius: 8px;
+  padding: 0 10px;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  cursor: pointer;
+  font-size: 7px;
+  font-weight: 900;
+  letter-spacing: .08em;
+}
+.data-actions button:hover {
+  border-color: var(--cyan);
+  color: var(--cyan);
+}
+.data-actions button.danger:hover {
+  border-color: var(--orange);
+  color: var(--orange);
+}
+.sync-roadmap {
+  display: grid;
+  grid-template-columns: 28px 1fr;
+  gap: 9px;
+  align-items: center;
+  border: 1px solid rgba(104,226,220,.2);
+  background: var(--cyan-dim);
+  border-radius: 9px;
+  padding: 10px;
+}
+.sync-roadmap ion-icon { color: var(--cyan); font-size: 17px; }
+.sync-roadmap > div {
+  display: grid;
+  gap: 3px;
+}
+.sync-roadmap strong { font-size: 9px; }
+.sync-roadmap small { color: var(--muted); font-size: 7px; line-height: 1.4; }
+.data-message {
+  margin: 0;
+  color: var(--cyan);
+  font-size: 8px;
+  font-weight: 750;
+}
+
+@media (max-width: 900px) {
+  .progress-insights { grid-template-columns: 1fr; }
+}
