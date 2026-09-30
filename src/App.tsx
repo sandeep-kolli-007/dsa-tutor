@@ -60,7 +60,7 @@ function App() {
           <main className="main-stage">
             {page === 'home' && <Home completed={completed} openLesson={openLesson} goLearn={() => navigate('learn')} />}
             {page === 'learn' && <Learn completed={completed} openLesson={openLesson} />}
-            {page === 'practice' && <Practice openLesson={openLesson} />}
+            {page === 'practice' && <Practice openLesson={openLesson} completed={completed} />}
             {page === 'code' && <CodePractice openLesson={openLesson} initialProblemId={codeProblemId} selectProblem={(id) => navigate('code', id)} />}
             {page === 'progress' && <Progress completed={completed} openLesson={openLesson} />}
             {page === 'lesson' && (
