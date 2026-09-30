@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 
 import { patterns } from '../data/patterns';
 import { codeProblems } from '../data/codeProblems';
+import { codeProblems } from '../data/codeProblems';
 import type { Page, PatternId } from '../types/lesson';
 
 export type RouteState = {
@@ -11,6 +12,7 @@ export type RouteState = {
 };
 
 const knownPatternIds = new Set<PatternId>(patterns.map((pattern) => pattern.id));
+const knownCodeProblemIds = new Set(codeProblems.map((problem) => problem.id));
 const knownCodeProblemIds = new Set(codeProblems.map((problem) => problem.id));
 
 export function parseHash(hash: string): RouteState {
