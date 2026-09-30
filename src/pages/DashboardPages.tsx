@@ -11,6 +11,7 @@ import type { PatternId } from '../types/lesson';
 import { PatternCard } from '../components/PatternCard';
 import { calculateMastery } from '../engine/mastery';
 import { DataPortability, LearningHistory } from '../components/DataTools';
+import { CloudSyncPanel } from '../components/CloudSyncPanel';
 
 export function Home(props: { completed: PatternId[]; openLesson: (id: PatternId) => void; goLearn: () => void }) {
   const practice = useMemo(() => loadPracticeStats(), []);
@@ -200,6 +201,8 @@ export function Progress(props: { completed: PatternId[]; openLesson: (id: Patte
         <LearningHistory />
         <DataPortability />
       </div>
+
+      <CloudSyncPanel />
 
       <div className="progress-list">
         {patterns.map((pattern) => {
