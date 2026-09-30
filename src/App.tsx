@@ -3941,6 +3941,18 @@ function Visualizer({ pattern, frame }: { pattern: Pattern; frame: Frame }) {
   if (pattern.id === 'a-star') return <AStarVisualizer pattern={pattern} frame={frame} />;
   if (pattern.id === 'sparse-table') return <SparseTableVisualizer pattern={pattern} frame={frame} />;
   if (pattern.id === 'dp-optimization') return <DPOptimizationVisualizer pattern={pattern} frame={frame} />;
+  if (pattern.id === 'frequency-map') return <FrequencyVisualizer pattern={pattern} frame={frame} />;
+  if (pattern.id === 'linked-list-reversal') return <ReversalVisualizer pattern={pattern} frame={frame} />;
+  if (pattern.id === 'tree-traversals' || pattern.id === 'bst') return <TreeFoundationVisualizer pattern={pattern} frame={frame} />;
+  if (pattern.id === 'lca') return <AncestorVisualizer pattern={pattern} frame={frame} />;
+  if (pattern.id === 'lis') return <StackVisualizer pattern={pattern} frame={frame} />;
+  if (pattern.id === 'knapsack' || pattern.id === 'coin-change') return <DPOptimizationVisualizer pattern={pattern} frame={frame} />;
+  if (pattern.id === 'lcs' || pattern.id === 'edit-distance') return <MatrixDPVisualizer pattern={pattern} frame={frame} />;
+  if (pattern.id === 'difference-array') return <PrefixVisualizer pattern={pattern} frame={frame} />;
+  if (pattern.id === 'sweep-line') return <EventSweepVisualizer pattern={pattern} frame={frame} />;
+  if (pattern.id === 'monotonic-queue') return <DequeVisualizer pattern={pattern} frame={frame} />;
+  if (pattern.id === 'quickselect' || pattern.id === 'dutch-flag') return <PartitionVisualizer pattern={pattern} frame={frame} />;
+  if (pattern.id === 'meet-in-middle') return <MeetMiddleVisualizer pattern={pattern} frame={frame} />;
   return <ArrayVisualizer pattern={pattern} frame={frame} />;
 }
 
@@ -4675,6 +4687,150 @@ function DPOptimizationVisualizer({ pattern, frame }: { pattern: Pattern; frame:
       <div className="dp-opt-board">
         {(frame.matrix||[]).map((row,r)=><div className="dp-opt-row" key={r}>{row.map((v,c)=><span key={c}>{v}</span>)}</div>)}
         <div className="rolling-row"><em>ROLLING</em>{(frame.rolling||[]).map((v,i)=><b key={i}>{v}</b>)}</div>
+      </div>
+    </VisualShell>
+  );
+}
+
+
+function FrequencyVisualizer({ pattern, frame }: { pattern: Pattern; frame: Frame }) {
+  const entries = Object.entries(frame.frequency || {});
+  return (
+    <VisualShell pattern={pattern} frame={frame}>
+      <ArrayCells frame={frame} />
+      <div className="frequency-map-board">
+        <span className="visual-caption">HASH MAP</span>
+        <div>{entries.length ? entries.map(([key,value]) => <b key={key}><em>{key}</em><strong>{value}</strong></b>) : <i>empty</i>}</div>
+      </div>
+    </VisualShell>
+  );
+}
+
+function ReversalVisualizer({ pattern, frame }: { pattern: Pattern; frame: Frame }) {
+  return (
+    <VisualShell pattern={pattern} frame={frame}>
+      <div className="reversal-row">
+        {frame.values.map((value,index) => (
+          <div className="reversal-node-wrap" key={index}>
+            <div className="runner-labels">
+              {frame.slow === index && <span className="runner slow">CURR</span>}
+              {frame.fast === index && <span className="runner fast">NEXT</span>}
+            </div>
+            <div className={'linked-node '+(frame.active?.includes(index)?'active ':'')+(frame.dimmed?.includes(index)?'dimmed':'')}>{value}</div>
+            {index < frame.values.length-1 && <span className="link-arrow">{frame.dimmed?.includes(index)?'←':'→'}</span>}
+          </div>
+        ))}
+      </div>
+      <div className="reversal-rule">SAVE NEXT → REVERSE LINK → ADVANCE</div>
+    </VisualShell>
+  );
+}
+
+function TreeFoundationVisualizer({ pattern, frame }: { pattern: Pattern; frame: Frame }) {
+  const nodes=frame.tree||[];
+  return (
+    <VisualShell pattern={pattern} frame={frame}>
+      <div className="foundation-tree">
+        {nodes.map((node,index)=>{
+          const parent=index===0?null:Math.floor((index-1)/2);
+          const parentNode=parent===null?null:nodes[parent];
+          const top=14+node.level*35;
+          return (
+            <div key={index}>
+              {parentNode && <i className="tree-edge" style={{left:Math.min(node.pos,parentNode.pos)+'%',top:(14+parentNode.level*35+8)+'%',width:Math.abs(node.pos-parentNode.pos)+'%'}} />}
+              <div className={'tree-foundation-node '+(node.active?'active':'')} style={{left:node.pos+'%',top:top+'%'}}>{node.label}</div>
+            </div>
+          );
+        })}
+      </div>
+      {frame.order && <div className="tree-order"><span>ORDER</span>{frame.order.map((n,i)=><b key={i}>{frame.labels?.[n] ?? n}</b>)}</div>}
+      {frame.target !== undefined && <div className="tree-order"><span>TARGET</span><b>{frame.target}</b></div>}
+    </VisualShell>
+  );
+}
+
+function AncestorVisualizer({ pattern, frame }: { pattern: Pattern; frame: Frame }) {
+  return (
+    <VisualShell pattern={pattern} frame={frame}>
+      <div className="ancestor-table">
+        <div className="ancestor-head"><span>2^k</span>{(frame.labels||[]).map(l=><b key={l}>{l}</b>)}</div>
+        {(frame.ancestorTable||[]).map((row,k)=><div className="ancestor-row" key={k}><span>{k}</span>{row.map((v,i)=><b key={i} className={frame.active?.includes(i)?'active':''}>{frame.labels?.[v] ?? v}</b>)}</div>)}
+      </div>
+    </VisualShell>
+  );
+}
+
+function MatrixDPVisualizer({ pattern, frame }: { pattern: Pattern; frame: Frame }) {
+  const matrix=frame.matrix||[];
+  return (
+    <VisualShell pattern={pattern} frame={frame}>
+      <div className="matrix-dp-wrap">
+        {frame.text && frame.patternText && <div className="matrix-labels"><span>{frame.text}</span><span>{frame.patternText}</span></div>}
+        <div className="matrix-dp" style={{gridTemplateColumns:'repeat('+(matrix[0]?.length||1)+', 54px)'}}>
+          {matrix.flatMap((row,r)=>row.map((v,c)=><span key={r+'-'+c} className={frame.cell?.[0]===r&&frame.cell?.[1]===c?'active':''}>{v}</span>))}
+        </div>
+      </div>
+    </VisualShell>
+  );
+}
+
+function EventSweepVisualizer({ pattern, frame }: { pattern: Pattern; frame: Frame }) {
+  const events=frame.events||[];
+  const min=Math.min(...events.map(e=>e.x),0);
+  const max=Math.max(...events.map(e=>e.x),1);
+  return (
+    <VisualShell pattern={pattern} frame={frame}>
+      <div className="sweep-axis">
+        <div className="axis-line" />
+        {events.map((e,i)=>{
+          const pct=((e.x-min)/Math.max(1,max-min))*100;
+          return <div key={i} className={'event-pin '+(e.active?'active':'')} style={{left:pct+'%'}}><b>{e.delta>0?'+':''}{e.delta}</b><small>{e.x}</small></div>;
+        })}
+      </div>
+      <div className="kadane-stats"><span>ACTIVE <b>{frame.currentSum ?? 0}</b></span><span>MAX <b>{frame.bestSum ?? 0}</b></span></div>
+    </VisualShell>
+  );
+}
+
+function DequeVisualizer({ pattern, frame }: { pattern: Pattern; frame: Frame }) {
+  return (
+    <VisualShell pattern={pattern} frame={frame}>
+      <ArrayCells frame={frame} />
+      <div className="deque-board">
+        <span>FRONT</span>
+        {(frame.deque||[]).map((index,i)=><b key={i}>{frame.values[index]}<small>i{index}</small></b>)}
+        <span>BACK</span>
+      </div>
+    </VisualShell>
+  );
+}
+
+function PartitionVisualizer({ pattern, frame }: { pattern: Pattern; frame: Frame }) {
+  return (
+    <VisualShell pattern={pattern} frame={frame}>
+      <div className="partition-row">
+        {frame.values.map((value,index)=>{
+          const active=frame.active?.includes(index);
+          const pivot=frame.pivot===index;
+          return <div key={index} className={'partition-cell '+(active?'active ':'')+(pivot?'pivot ':'')+(frame.dimmed?.includes(index)?'dimmed':'')}><small>{index}</small><strong>{value}</strong>{pivot&&<em>PIVOT</em>}</div>;
+        })}
+      </div>
+      <div className="partition-pointers">
+        {frame.left !== undefined && <span>LOW {frame.left}</span>}
+        {frame.mid !== undefined && <span>MID {frame.mid}</span>}
+        {frame.right !== undefined && <span>HIGH {frame.right}</span>}
+      </div>
+    </VisualShell>
+  );
+}
+
+function MeetMiddleVisualizer({ pattern, frame }: { pattern: Pattern; frame: Frame }) {
+  return (
+    <VisualShell pattern={pattern} frame={frame}>
+      <div className="mitm-board">
+        <div><span className="visual-caption">LEFT HALF</span>{(frame.halves?.[0]||[]).map((v,i)=><b key={i}>{v}</b>)}</div>
+        <div className="mitm-target"><small>TARGET</small><strong>{frame.target}</strong></div>
+        <div><span className="visual-caption">RIGHT HALF</span>{(frame.halves?.[1]||[]).map((v,i)=><b key={i}>{v}</b>)}</div>
       </div>
     </VisualShell>
   );
