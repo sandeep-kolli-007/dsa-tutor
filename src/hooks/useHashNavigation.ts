@@ -1,14 +1,17 @@
 import { useEffect, useState } from 'react';
 
 import { patterns } from '../data/patterns';
+import { codeProblems } from '../data/codeProblems';
 import type { Page, PatternId } from '../types/lesson';
 
 export type RouteState = {
   page: Page;
   patternId?: PatternId;
+  codeProblemId?: string;
 };
 
 const knownPatternIds = new Set<PatternId>(patterns.map((pattern) => pattern.id));
+const knownCodeProblemIds = new Set(codeProblems.map((problem) => problem.id));
 
 export function parseHash(hash: string): RouteState {
   const path = hash.replace(/^#\/?/, '').split('/').filter(Boolean);
@@ -23,14 +26,21 @@ export function parseHash(hash: string): RouteState {
 
   if (path[0] === 'learn') return { page: 'learn' };
   if (path[0] === 'practice') return { page: 'practice' };
-  if (path[0] === 'code') return { page: 'code' };
+  if (path[0] === 'code') {
+    const candidate = path[1];
+    if (candidate && knownCodeProblemIds.has(candidate)) {
+      return { page: 'code', codeProblemId: candidate };
+    }
+    return { page: 'code' };
+  }
   if (path[0] === 'progress') return { page: 'progress' };
   return { page: 'home' };
 }
 
-export function hashFor(page: Page, patternId?: PatternId) {
+export function hashFor(page: Page, resourceId?: string) {
   if (page === 'home') return '#/';
-  if (page === 'lesson' && patternId) return `#/lesson/${patternId}`;
+  if (page === 'lesson' && resourceId) return `#/lesson/${resourceId}`;
+  if (page === 'code' && resourceId) return `#/code/${resourceId}`;
   return `#/${page}`;
 }
 
@@ -43,8 +53,8 @@ export function useHashNavigation() {
     return () => window.removeEventListener('hashchange', onHashChange);
   }, []);
 
-  const navigate = (page: Page, patternId?: PatternId) => {
-    const nextHash = hashFor(page, patternId);
+  const navigate = (page: Page, resourceId?: string) => {
+    const nextHash = hashFor(page, resourceId);
     if (window.location.hash === nextHash) {
       setRoute(parseHash(nextHash));
       return;
