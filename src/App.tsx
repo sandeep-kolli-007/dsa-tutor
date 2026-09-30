@@ -27,7 +27,7 @@ import {
 } from 'ionicons/icons';
 
 type Page = 'home' | 'learn' | 'progress' | 'lesson';
-type PatternId = 'sliding-window' | 'two-pointers' | 'binary-search' | 'prefix-sum' | 'fast-slow' | 'monotonic-stack' | 'merge-intervals' | 'graph-traversal' | 'heap-top-k' | 'backtracking' | 'dynamic-programming' | 'trie' | 'union-find' | 'topological-sort' | 'greedy' | 'bit-manipulation' | 'binary-search-answer' | 'dp-2d' | 'dijkstra' | 'kadane' | 'cyclic-sort' | 'k-way-merge' | 'matrix-traversal' | 'segment-tree' | 'fenwick-tree' | 'bellman-ford' | 'floyd-warshall';
+type PatternId = 'sliding-window' | 'two-pointers' | 'binary-search' | 'prefix-sum' | 'fast-slow' | 'monotonic-stack' | 'merge-intervals' | 'graph-traversal' | 'heap-top-k' | 'backtracking' | 'dynamic-programming' | 'trie' | 'union-find' | 'topological-sort' | 'greedy' | 'bit-manipulation' | 'binary-search-answer' | 'dp-2d' | 'dijkstra' | 'kadane' | 'cyclic-sort' | 'k-way-merge' | 'matrix-traversal' | 'segment-tree' | 'fenwick-tree' | 'bellman-ford' | 'floyd-warshall' | 'kmp' | 'rabin-karp' | 'scc' | 'prim' | 'kruskal' | 'a-star' | 'sparse-table' | 'dp-optimization';
 
 type Frame = {
   title: string;
@@ -82,6 +82,16 @@ type Frame = {
   tree?: { label: string; value: number; range: [number, number]; level: number; pos: number; active?: boolean }[];
   fenwick?: number[];
   fenwickLinks?: [number, number][];
+  text?: string;
+  patternText?: string;
+  lps?: number[];
+  charWindow?: [number, number];
+  hash?: string;
+  components?: number[];
+  selectedEdges?: [number, number][];
+  heuristic?: number[];
+  sparse?: number[][];
+  rolling?: number[];
 };
 
 type Pattern = {
@@ -2684,6 +2694,315 @@ const patterns: Pattern[] = [
       correct: 0,
       explanation: 'Floyd-Warshall systematically considers every vertex as an allowed intermediate for every pair.',
     },
+  },
+  {
+    id: 'kmp',
+    no: '28',
+    title: 'KMP String Matching',
+    subtitle: 'Reuse what the pattern already knows after a mismatch.',
+    category: 'STRING MATCHING',
+    summary: 'KMP avoids rechecking matched characters by using an LPS table that describes reusable prefix structure.',
+    analogyTitle: 'Search a repeated barcode without restarting from zero',
+    analogyBody:
+      'When several characters already matched and the next one fails, you do not forget everything. The pattern itself tells you the longest prefix that is also a suffix, so you resume from the best known partial match.',
+    mapping: [
+      ['Text stream', 'Search text'],
+      ['Needle', 'Pattern'],
+      ['Reusable matched suffix', 'LPS fallback'],
+      ['Skip rechecking', 'Linear scan'],
+    ],
+    invariant: 'Before comparing text[i] with pattern[j], pattern[0..j-1] already matches the suffix ending at text[i-1].',
+    signals: ['Exact substring search', 'Repeated pattern structure', 'Need guaranteed linear matching', 'Avoid text-pointer backtracking'],
+    avoid: ['Only one tiny lookup exists', 'Approximate/fuzzy matching is required', 'Hash-based multi-pattern search is more natural'],
+    complexity: { time: 'O(n + m)', space: 'O(m)' },
+    frames: [
+      { title:'Build pattern knowledge', explanation:'For ABABC, the LPS table records the longest proper prefix that is also a suffix at every position.', values:[0,1,2,3,4], text:'ABABDABACDABABCABAB', patternText:'ABABC', lps:[0,0,1,2,0], active:[0,1,2,3,4], metric:'LPS 0 0 1 2 0', codeLine:1 },
+      { title:'Match characters left to right', explanation:'A B A B match. The next text character is D while the pattern expects C.', values:[0,1,2,3,4], text:'ABABDABACDABABCABAB', patternText:'ABABC', lps:[0,0,1,2,0], charWindow:[0,3], active:[0,1,2,3], metric:'MATCHED 4', codeLine:5 },
+      { title:'Fallback inside the pattern', explanation:'Instead of moving the text pointer backward, set j = LPS[j-1] and reuse the known AB prefix.', values:[0,1,2,3,4], text:'ABABDABACDABABCABAB', patternText:'ABABC', lps:[0,0,1,2,0], charWindow:[2,3], active:[0,1], metric:'j: 4 → 2', codeLine:8 },
+      { title:'Find the full occurrence', explanation:'The scan continues without re-reading old text positions and finds ABABC.', values:[0,1,2,3,4], text:'ABABDABACDABABCABAB', patternText:'ABABC', lps:[0,0,1,2,0], charWindow:[10,14], active:[0,1,2,3,4], metric:'FOUND AT 10 ✓', codeLine:6 },
+    ],
+    code: [
+      'const lps = buildLps(pattern);',
+      'let i = 0, j = 0;',
+      'while (i < text.length) {',
+      '  if (text[i] === pattern[j]) { i++; j++; }',
+      '  if (j === pattern.length) return i - j;',
+      '  if (i < text.length && text[i] !== pattern[j]) {',
+      '    if (j > 0) j = lps[j - 1];',
+      '    else i++;',
+      '  }',
+      '}',
+    ],
+    quiz: { question:'You need exact substring search with worst-case O(n+m) time and a pattern containing repeated prefixes. Which algorithm fits?', options:['KMP','Dijkstra','Union Find','Kadane'], correct:0, explanation:'KMP uses the LPS table to reuse partial matches instead of restarting.' },
+  },
+  {
+    id: 'rabin-karp',
+    no: '29',
+    title: 'Rabin-Karp',
+    subtitle: 'Compare fingerprints first, characters only when hashes agree.',
+    category: 'STRING MATCHING',
+    summary: 'Rabin-Karp slides a rolling hash over the text so each next substring fingerprint updates in O(1).',
+    analogyTitle: 'Compare document fingerprints before opening the pages',
+    analogyBody:
+      'A checksum can reject most non-matches instantly. As the window moves, remove the outgoing character contribution and add the incoming one instead of hashing the whole substring again.',
+    mapping: [
+      ['Window checksum', 'Rolling hash'],
+      ['Pattern checksum', 'Target hash'],
+      ['Slide one character', 'O(1) hash update'],
+      ['Hash collision', 'Verify characters'],
+    ],
+    invariant: 'The maintained hash always represents exactly the current text window of pattern length.',
+    signals: ['Substring search', 'Many patterns / plagiarism-style matching', 'Rolling windows over strings', 'Hashable sequence'],
+    avoid: ['Collision risk is unacceptable without verification', 'Worst-case deterministic guarantee is required', 'Single-character search'],
+    complexity: { time: 'Average O(n+m)', space: 'O(1)' },
+    frames: [
+      { title:'Hash the pattern and first window', explanation:'Pattern ABC and text window ABA get compact numeric fingerprints.', values:[0,1,2], text:'ABABABC', patternText:'ABC', charWindow:[0,2], hash:'window 129 · pattern 102', metric:'HASH MISMATCH', codeLine:1 },
+      { title:'Roll the hash one step', explanation:'Remove A from the left, shift, then add B on the right. No full re-hash is needed.', values:[0,1,2], text:'ABABABC', patternText:'ABC', charWindow:[1,3], hash:'ROLL O(1)', metric:'WINDOW BAB', codeLine:5 },
+      { title:'Keep sliding', explanation:'Most windows are rejected from hash alone.', values:[0,1,2], text:'ABABABC', patternText:'ABC', charWindow:[2,4], hash:'window ≠ pattern', metric:'SKIP', codeLine:4 },
+      { title:'Hash match, then verify', explanation:'The final window ABC has the same hash. Verify characters to rule out collision.', values:[0,1,2], text:'ABABABC', patternText:'ABC', charWindow:[4,6], hash:'window = pattern', metric:'FOUND ✓', codeLine:7 },
+    ],
+    code: [
+      'const target = hash(pattern);',
+      'let windowHash = hash(text.slice(0, m));',
+      'for (let left = 0; left <= n - m; left++) {',
+      '  if (windowHash === target && equalWindow(left)) return left;',
+      '  windowHash = roll(windowHash, text[left], text[left + m]);',
+      '}',
+    ],
+    quiz: { question:'You want to scan many fixed-length substrings and update each next fingerprint in constant time. Which technique?', options:['Rolling hash / Rabin-Karp','Topological Sort','Fenwick Tree','Backtracking'], correct:0, explanation:'Rabin-Karp maintains a rolling window hash and verifies only matching fingerprints.' },
+  },
+  {
+    id: 'scc',
+    no: '30',
+    title: 'Strongly Connected Components',
+    subtitle: 'Compress mutual reachability into component nodes.',
+    category: 'DIRECTED GRAPH',
+    summary: 'SCC algorithms group vertices where every node can reach every other node in the same group.',
+    analogyTitle: 'Group cities with two-way reachability',
+    analogyBody:
+      'If every city in a cluster can eventually reach every other city through one-way roads, treat that whole cluster as one super-city. The compressed graph becomes a DAG.',
+    mapping: [
+      ['City', 'Vertex'],
+      ['One-way road', 'Directed edge'],
+      ['Mutual reachability', 'Same SCC'],
+      ['Compressed cluster', 'Condensation DAG node'],
+    ],
+    invariant: 'Inside one SCC every node is mutually reachable; between SCCs, the compressed graph has no directed cycle.',
+    signals: ['Mutual reachability', 'Directed cycles', 'Condense graph to DAG', 'Dependencies with cyclic groups'],
+    avoid: ['Graph is undirected', 'Need weighted shortest paths', 'Only simple reachability from one source'],
+    complexity: { time: 'O(V + E)', space: 'O(V)' },
+    frames: [
+      { title:'Start with a directed graph', explanation:'A↔B↔C form one cyclic region while D↔E form another.', values:[0,1,2,3,4], labels:['A','B','C','D','E'], edges:[[0,1],[1,2],[2,0],[2,3],[3,4],[4,3]], components:[-1,-1,-1,-1,-1], active:[0,1,2,3,4], metric:'DIRECTED GRAPH', codeLine:1 },
+      { title:'Discover the first SCC', explanation:'A, B, and C can all reach one another, so collapse them into component 0.', values:[0,1,2,3,4], labels:['A','B','C','D','E'], edges:[[0,1],[1,2],[2,0],[2,3],[3,4],[4,3]], components:[0,0,0,-1,-1], active:[0,1,2], metric:'SCC 0 = A B C', codeLine:5 },
+      { title:'Discover the second SCC', explanation:'D and E form a separate mutually reachable group.', values:[0,1,2,3,4], labels:['A','B','C','D','E'], edges:[[0,1],[1,2],[2,0],[2,3],[3,4],[4,3]], components:[0,0,0,1,1], active:[3,4], metric:'SCC 1 = D E', codeLine:5 },
+      { title:'Compress into a DAG', explanation:'The only inter-component edge is SCC 0 → SCC 1.', values:[0,1,2,3,4], labels:['A','B','C','D','E'], edges:[[0,1],[1,2],[2,0],[2,3],[3,4],[4,3]], components:[0,0,0,1,1], active:[], metric:'CONDENSATION DAG ✓', codeLine:7 },
+    ],
+    code: [
+      'dfs1(graph, node, visited, order);',
+      'reverse all edges;',
+      'while (order.length) {',
+      '  const node = order.pop();',
+      '  if (!seen[node]) {',
+      '    dfs2(reversed, node, componentId);',
+      '    componentId++;',
+      '  }',
+      '}',
+    ],
+    quiz: { question:'In a directed graph, you need to collapse every mutually reachable cycle-region into one node. Which concept?', options:['Strongly Connected Components','Prefix Sum','Heap','Kadane'], correct:0, explanation:'SCC decomposition identifies maximal mutually reachable vertex groups.' },
+  },
+  {
+    id: 'prim',
+    no: '31',
+    title: 'Prim MST',
+    subtitle: 'Grow one minimum spanning tree from the cheapest frontier edge.',
+    category: 'GRAPH / MST',
+    summary: 'Prim repeatedly attaches the cheapest edge that connects the built tree to a new vertex.',
+    analogyTitle: 'Expand a fiber network from one connected neighborhood',
+    analogyBody:
+      'Once some houses are connected, only consider cables leaving the connected region. Always take the cheapest cable that reaches a new house.',
+    mapping: [
+      ['Connected neighborhood', 'Current MST vertices'],
+      ['Boundary cables', 'Priority queue edges'],
+      ['Cheapest new cable', 'Greedy choice'],
+      ['New house', 'Unvisited vertex'],
+    ],
+    invariant: 'Selected edges always form one connected acyclic tree, and each new edge is the cheapest crossing edge.',
+    signals: ['Minimum spanning tree', 'Weighted undirected graph', 'Grow from one source', 'Dense-ish graph / adjacency traversal'],
+    avoid: ['Directed graph', 'Need shortest paths from source', 'Graph is disconnected unless building a forest'],
+    complexity: { time: 'O(E log V)', space: 'O(V+E)' },
+    frames: [
+      { title:'Start from A', explanation:'A is inside the tree. Candidate edges are A-B(4) and A-C(1).', values:[0,1,2,3], labels:['A','B','C','D'], weights:[[0,1,4],[0,2,1],[2,1,2],[1,3,3],[2,3,5]], selected:[0], selectedEdges:[], active:[0], metric:'TREE {A}', codeLine:2 },
+      { title:'Take cheapest crossing edge', explanation:'A-C with weight 1 is the cheapest edge leaving the current tree.', values:[0,1,2,3], labels:['A','B','C','D'], weights:[[0,1,4],[0,2,1],[2,1,2],[1,3,3],[2,3,5]], selected:[0,2], selectedEdges:[[0,2]], active:[2], metric:'+ A-C (1)', codeLine:6 },
+      { title:'Frontier updates', explanation:'Now C-B(2) beats A-B(4), so B joins through C.', values:[0,1,2,3], labels:['A','B','C','D'], weights:[[0,1,4],[0,2,1],[2,1,2],[1,3,3],[2,3,5]], selected:[0,2,1], selectedEdges:[[0,2],[2,1]], active:[1], metric:'+ C-B (2)', codeLine:6 },
+      { title:'Connect the final vertex', explanation:'B-D(3) is cheaper than C-D(5). The MST total is 6.', values:[0,1,2,3], labels:['A','B','C','D'], weights:[[0,1,4],[0,2,1],[2,1,2],[1,3,3],[2,3,5]], selected:[0,1,2,3], selectedEdges:[[0,2],[2,1],[1,3]], active:[3], metric:'MST COST = 6', codeLine:8 },
+    ],
+    code: [
+      'visited[start] = true;',
+      'push all edges from start;',
+      'while (pq.size && edgesUsed < n - 1) {',
+      '  const [weight, from, to] = pq.pop();',
+      '  if (visited[to]) continue;',
+      '  visited[to] = true; total += weight;',
+      '  push edges leaving to;',
+      '}',
+    ],
+    quiz: { question:'You want the cheapest set of cables connecting all offices and prefer to grow one connected tree from a start node. Which MST algorithm?', options:['Prim','KMP','Bellman-Ford','Floyd-Warshall'], correct:0, explanation:'Prim grows an MST by repeatedly selecting the cheapest edge crossing the current tree boundary.' },
+  },
+  {
+    id: 'kruskal',
+    no: '32',
+    title: 'Kruskal MST',
+    subtitle: 'Sort edges globally and add the next cheapest one that does not create a cycle.',
+    category: 'GRAPH / MST',
+    summary: 'Kruskal combines greedy edge ordering with Union Find cycle detection.',
+    analogyTitle: 'Buy the cheapest network links first, unless they are redundant',
+    analogyBody:
+      'Sort every possible cable by price. Buy the cheapest cable unless both endpoints are already connected through purchased cables.',
+    mapping: [
+      ['Cable price', 'Edge weight'],
+      ['Sorted cable list', 'Greedy order'],
+      ['Already connected endpoints', 'Same DSU root'],
+      ['Buy cable', 'Union components'],
+    ],
+    invariant: 'Selected edges are always acyclic; the next accepted edge is the cheapest one that connects two different components.',
+    signals: ['Minimum spanning tree', 'Edge list available', 'Need Union Find', 'Sparse graph'],
+    avoid: ['Directed graph', 'Need shortest route', 'Edges cannot be sorted/compared'],
+    complexity: { time: 'O(E log E)', space: 'O(V)' },
+    frames: [
+      { title:'Sort all edges by cost', explanation:'Process weights 1,2,3,4,5 in ascending order.', values:[1,2,3,4,5], labels:['A','B','C','D'], weights:[[0,2,1],[2,1,2],[1,3,3],[0,1,4],[2,3,5]], selectedEdges:[], parents:[0,1,2,3], active:[0], metric:'EDGE 1 FIRST', codeLine:1 },
+      { title:'Take A-C', explanation:'A and C are in different components, so accept the edge and union them.', values:[1,2,3,4,5], labels:['A','B','C','D'], weights:[[0,2,1],[2,1,2],[1,3,3],[0,1,4],[2,3,5]], selectedEdges:[[0,2]], parents:[0,1,0,3], active:[0], metric:'ACCEPT 1', codeLine:5 },
+      { title:'Take C-B', explanation:'C and B are still in different components, so weight 2 is safe.', values:[1,2,3,4,5], labels:['A','B','C','D'], weights:[[0,2,1],[2,1,2],[1,3,3],[0,1,4],[2,3,5]], selectedEdges:[[0,2],[2,1]], parents:[0,0,0,3], active:[1], metric:'ACCEPT 2', codeLine:5 },
+      { title:'Take B-D and stop', explanation:'Weight 3 connects the last component. Three edges connect four vertices, so the MST is done.', values:[1,2,3,4,5], labels:['A','B','C','D'], weights:[[0,2,1],[2,1,2],[1,3,3],[0,1,4],[2,3,5]], selectedEdges:[[0,2],[2,1],[1,3]], parents:[0,0,0,0], active:[2], metric:'MST COST = 6', codeLine:7 },
+    ],
+    code: [
+      'edges.sort((a,b) => a.w - b.w);',
+      'for (const edge of edges) {',
+      '  const a = find(edge.u), b = find(edge.v);',
+      '  if (a === b) continue;',
+      '  union(a, b);',
+      '  mst.push(edge);',
+      '  if (mst.length === n - 1) break;',
+      '}',
+    ],
+    quiz: { question:'You have a weighted edge list and want an MST by adding cheapest safe edges while using DSU for cycle checks. Which algorithm?', options:['Kruskal','Prim','KMP','A*'], correct:0, explanation:'Kruskal sorts edges globally and Union Find rejects cycle-forming edges.' },
+  },
+  {
+    id: 'a-star',
+    no: '33',
+    title: 'A* Search',
+    subtitle: 'Use real cost plus a heuristic to explore promising paths first.',
+    category: 'PATHFINDING',
+    summary: 'A* combines Dijkstra cost-so-far g with an admissible heuristic h to prioritize f = g + h.',
+    analogyTitle: 'Navigation prefers roads that are cheap and point toward the destination',
+    analogyBody:
+      'A route with low travel cost is good, but a route that also moves geographically closer to the destination is more promising. A* scores both.',
+    mapping: [
+      ['Cost already traveled', 'g(n)'],
+      ['Estimated remaining cost', 'h(n)'],
+      ['Priority score', 'f(n)=g+h'],
+      ['Best frontier node', 'Min-heap pop'],
+    ],
+    invariant: 'With an admissible consistent heuristic, the first time the goal is finalized, its path cost is optimal.',
+    signals: ['Shortest path to one target', 'Useful heuristic exists', 'Grid/map pathfinding', 'Dijkstra explores too broadly'],
+    avoid: ['No meaningful heuristic', 'Negative edge weights', 'Need distances to every node'],
+    complexity: { time: 'Problem/heuristic dependent', space: 'O(V)' },
+    frames: [
+      { title:'Start at S', explanation:'g=0. Manhattan distance to G gives h=4, so f=4.', values:[0,1,2], matrix:[[2,1,1],[0,1,0],[1,1,3]], cell:[0,0], distances:[0], heuristic:[4], metric:'f = g+h = 4', codeLine:2 },
+      { title:'Choose the best frontier', explanation:'Move right because it has the smallest estimated total cost.', values:[0,1,2], matrix:[[2,2,1],[0,1,0],[1,1,3]], cell:[0,1], distances:[1], heuristic:[3], metric:'g 1 + h 3 = 4', codeLine:6 },
+      { title:'Heuristic guides the search', explanation:'Continue toward cells that keep f small while avoiding blocked cells.', values:[0,1,2], matrix:[[2,2,2],[0,1,0],[1,1,3]], cell:[0,2], distances:[2], heuristic:[2], metric:'FRONTIER PRIORITY', codeLine:6 },
+      { title:'Reach the goal optimally', explanation:'The goal is finalized with the cheapest path discovered under the admissible heuristic.', values:[0,1,2], matrix:[[2,2,2],[0,1,0],[1,2,3]], cell:[2,2], distances:[4], heuristic:[0], metric:'GOAL COST = 4', codeLine:9 },
+    ],
+    code: [
+      'open.push([h(start), 0, start]);',
+      'while (open.size) {',
+      '  const [f, g, node] = open.pop();',
+      '  if (node === goal) return g;',
+      '  for (const next of neighbors(node)) {',
+      '    const ng = g + cost(node, next);',
+      '    if (ng < best[next]) {',
+      '      best[next] = ng;',
+      '      open.push([ng + h(next), ng, next]);',
+      '    }',
+      '  }',
+      '}',
+    ],
+    quiz: { question:'You need an optimal path to one destination on a map and have a good lower-bound distance heuristic. Which search?', options:['A*','Floyd-Warshall','Union Find','Kadane'], correct:0, explanation:'A* focuses Dijkstra-like exploration using an admissible heuristic toward the target.' },
+  },
+  {
+    id: 'sparse-table',
+    no: '34',
+    title: 'Sparse Table',
+    subtitle: 'Precompute power-of-two blocks for instant static range queries.',
+    category: 'STATIC RANGE QUERY',
+    summary: 'Sparse tables answer idempotent range queries such as min/max in O(1) after O(n log n) preprocessing.',
+    analogyTitle: 'Pre-label every road segment of length 1, 2, 4, 8…',
+    analogyBody:
+      'If a route never changes, store the minimum value for every power-of-two segment. Any later range can be covered by two overlapping precomputed blocks.',
+    mapping: [
+      ['Power-of-two segment', 'Sparse block'],
+      ['Level k', 'Length 2^k'],
+      ['Static values', 'No updates'],
+      ['Two blocks', 'O(1) RMQ'],
+    ],
+    invariant: 'table[k][i] stores the correct aggregate for interval [i, i + 2^k - 1].',
+    signals: ['Static array', 'Many range min/max queries', 'Idempotent operation', 'No updates'],
+    avoid: ['Frequent updates', 'Non-idempotent operation without overlap handling', 'Tiny query count'],
+    complexity: { time: 'O(n log n) build, O(1) query', space: 'O(n log n)' },
+    frames: [
+      { title:'Level 0 stores single values', explanation:'Every block has length 1.', values:[5,2,7,3,6,1], sparse:[[5,2,7,3,6,1]], active:[0,1,2,3,4,5], metric:'2^0 = 1', codeLine:1 },
+      { title:'Level 1 stores length-2 minima', explanation:'Each entry combines two level-0 neighbors.', values:[5,2,7,3,6,1], sparse:[[5,2,7,3,6,1],[2,2,3,3,1]], active:[0,1,2,3,4], metric:'2^1 = 2', codeLine:4 },
+      { title:'Level 2 stores length-4 minima', explanation:'Combine two length-2 blocks to get length 4.', values:[5,2,7,3,6,1], sparse:[[5,2,7,3,6,1],[2,2,3,3,1],[2,2,1]], active:[0,1,2], metric:'2^2 = 4', codeLine:4 },
+      { title:'Query with two overlapping blocks', explanation:'For [1,5], use k=2: min(block[1..4], block[2..5]) = min(2,1)=1.', values:[5,2,7,3,6,1], sparse:[[5,2,7,3,6,1],[2,2,3,3,1],[2,2,1]], active:[1,2,3,4,5], metric:'RMQ = 1', codeLine:8 },
+    ],
+    code: [
+      'table[0] = [...nums];',
+      'for (let k = 1; (1 << k) <= n; k++)',
+      '  for (let i = 0; i + (1 << k) <= n; i++)',
+      '    table[k][i] = Math.min(',
+      '      table[k-1][i],',
+      '      table[k-1][i + (1 << (k-1))]',
+      '    );',
+      '// query uses two blocks of length 2^k',
+    ],
+    quiz: { question:'An immutable array receives millions of range-minimum queries. Which structure gives O(1) queries after preprocessing?', options:['Sparse Table','Fenwick Tree','Trie','Backtracking'], correct:0, explanation:'Sparse tables precompute power-of-two RMQ blocks and answer static min/max queries in O(1).' },
+  },
+  {
+    id: 'dp-optimization',
+    no: '35',
+    title: 'DP Space Optimization',
+    subtitle: 'Keep only dependency states that the next transition actually needs.',
+    category: 'DP OPTIMIZATION',
+    summary: 'Many DP tables are conceptually 2D but each row depends only on a small number of previous rows.',
+    analogyTitle: 'Erase old whiteboard rows once tomorrow no longer needs them',
+    analogyBody:
+      'If computing today only needs yesterday, keeping every earlier day on the board wastes space. Reuse two rows — or one row if update order is safe.',
+    mapping: [
+      ['Full DP table', 'All historical states'],
+      ['Previous row', 'Required dependency'],
+      ['Current row', 'Next states'],
+      ['Swap rows', 'O(cols) memory'],
+    ],
+    invariant: 'Before overwriting a state, every transition that still needs its old value has already consumed it.',
+    signals: ['2D DP with local row dependencies', 'Memory limit', 'Transition uses previous row/column only', 'Rolling arrays'],
+    avoid: ['Need full table for reconstruction', 'Transition jumps to arbitrary old rows', 'Overwrite order would destroy needed values'],
+    complexity: { time: 'Same as original DP', space: 'Often O(cols)' },
+    frames: [
+      { title:'Start from a full conceptual table', explanation:'The recurrence may be 2D even if storing the entire matrix is unnecessary.', values:[0,1,2], matrix:[[1,1,1],[1,2,3],[1,3,6]], rolling:[1,1,1], pass:0, metric:'O(rows×cols) SPACE', codeLine:1 },
+      { title:'Keep only the previous row', explanation:'To compute row 1, row 0 contains every needed dependency.', values:[0,1,2], matrix:[[1,1,1],[1,2,3]], rolling:[1,2,3], pass:1, metric:'PREV → CURR', codeLine:4 },
+      { title:'Swap and reuse memory', explanation:'After row 1 is complete, old row 0 is no longer needed. Reuse that buffer for row 2.', values:[0,1,2], matrix:[[1,2,3],[1,3,6]], rolling:[1,3,6], pass:2, metric:'2 ROWS ONLY', codeLine:6 },
+      { title:'Sometimes one row is enough', explanation:'With the right update direction, dp[c] can hold the new value while dp[c-1] is already current.', values:[0,1,2], rolling:[1,3,6], pass:3, metric:'O(cols) SPACE ✓', codeLine:8 },
+    ],
+    code: [
+      'let prev = Array(cols).fill(1);',
+      'for (let r = 1; r < rows; r++) {',
+      '  const curr = Array(cols).fill(1);',
+      '  for (let c = 1; c < cols; c++)',
+      '    curr[c] = curr[c - 1] + prev[c];',
+      '  prev = curr;',
+      '}',
+      'return prev[cols - 1];',
+    ],
+    quiz: { question:'A grid DP row depends only on the previous row. What is the standard memory optimization?', options:['Rolling rows','Union Find','KMP','Segment Tree'], correct:0, explanation:'Store only the previous and current row, then reuse the buffers.' },
   }
 ];
 
@@ -2862,8 +3181,8 @@ function Learn(props: { completed: PatternId[]; openLesson: (id: PatternId) => v
         ))}
       </div>
       <div className="coming-grid">
-        {['KMP', 'Rabin-Karp', 'Strongly Connected Components', 'Prim MST', 'Kruskal MST', 'A* Search', 'Sparse Table', 'Advanced DP Optimization'].map((name, index) => (
-          <div className="coming-card" key={name}><span>{String(index + 28).padStart(2, '0')}</span><strong>{name}</strong><small>EXPERT TRACK</small></div>
+        {['Hash / Frequency Map', 'Linked List Reversal', 'Tree Traversals', 'BST Search & Insert', 'LCA / Binary Lifting', 'LIS', '0/1 Knapsack', 'LCS', 'Edit Distance', 'Coin Change', 'Difference Array', 'Sweep Line', 'Monotonic Queue', 'Quickselect', 'Dutch National Flag', 'Meet in the Middle'].map((name, index) => (
+          <div className="coming-card" key={name}><span>{String(index + 36).padStart(2, '0')}</span><strong>{name}</strong><small>CORE COMPLETION</small></div>
         ))}
       </div>
     </div>
