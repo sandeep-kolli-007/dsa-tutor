@@ -3471,6 +3471,12 @@ function Visualizer({ pattern, frame }: { pattern: Pattern; frame: Frame }) {
   if (pattern.id === 'fenwick-tree') return <FenwickVisualizer pattern={pattern} frame={frame} />;
   if (pattern.id === 'bellman-ford') return <BellmanFordVisualizer pattern={pattern} frame={frame} />;
   if (pattern.id === 'floyd-warshall') return <FloydWarshallVisualizer pattern={pattern} frame={frame} />;
+  if (pattern.id === 'kmp' || pattern.id === 'rabin-karp') return <StringMatchVisualizer pattern={pattern} frame={frame} />;
+  if (pattern.id === 'scc') return <SCCVisualizer pattern={pattern} frame={frame} />;
+  if (pattern.id === 'prim' || pattern.id === 'kruskal') return <MSTVisualizer pattern={pattern} frame={frame} />;
+  if (pattern.id === 'a-star') return <AStarVisualizer pattern={pattern} frame={frame} />;
+  if (pattern.id === 'sparse-table') return <SparseTableVisualizer pattern={pattern} frame={frame} />;
+  if (pattern.id === 'dp-optimization') return <DPOptimizationVisualizer pattern={pattern} frame={frame} />;
   return <ArrayVisualizer pattern={pattern} frame={frame} />;
 }
 
@@ -4111,6 +4117,100 @@ function FloydWarshallVisualizer({ pattern, frame }: { pattern: Pattern; frame: 
             </>
           ))}
         </div>
+      </div>
+    </VisualShell>
+  );
+}
+
+
+function StringMatchVisualizer({ pattern, frame }: { pattern: Pattern; frame: Frame }) {
+  const textChars = (frame.text || '').split('');
+  const patternChars = (frame.patternText || '').split('');
+  const [start,end] = frame.charWindow || [-1,-1];
+  return (
+    <VisualShell pattern={pattern} frame={frame}>
+      <div className="string-match-board">
+        <div className="visual-caption">TEXT</div>
+        <div className="char-row">
+          {textChars.map((ch,index) => <span key={index} className={index >= start && index <= end ? 'active' : ''}><small>{index}</small><b>{ch}</b></span>)}
+        </div>
+        <div className="visual-caption pattern-caption">PATTERN</div>
+        <div className="char-row pattern-row">
+          {patternChars.map((ch,index) => <span key={index} className={frame.active?.includes(index) ? 'active' : ''}><small>{index}</small><b>{ch}</b></span>)}
+        </div>
+        {frame.lps && <div className="lps-row"><em>LPS</em>{frame.lps.map((v,i)=><span key={i}>{v}</span>)}</div>}
+        {frame.hash && <div className="hash-readout">{frame.hash}</div>}
+      </div>
+    </VisualShell>
+  );
+}
+
+function SCCVisualizer({ pattern, frame }: { pattern: Pattern; frame: Frame }) {
+  return (
+    <VisualShell pattern={pattern} frame={frame}>
+      <div className="scc-board">
+        <svg viewBox="0 0 100 100" preserveAspectRatio="none">
+          {(frame.edges || []).map(([a,b],i)=><line key={i} x1={dijkstraPositions[a][0]} y1={dijkstraPositions[a][1]} x2={dijkstraPositions[b][0]} y2={dijkstraPositions[b][1]} />)}
+        </svg>
+        {(frame.labels || []).map((label,index)=>{
+          const [x,y]=dijkstraPositions[index];
+          const comp=frame.components?.[index] ?? -1;
+          return <div key={label} className={'scc-node comp-'+comp+' '+(frame.active?.includes(index)?'active':'')} style={{left:x+'%',top:y+'%'}}><b>{label}</b><small>{comp>=0?'SCC '+comp:'?'}</small></div>;
+        })}
+      </div>
+      <div className="scc-summary">{Array.from(new Set((frame.components||[]).filter(x=>x>=0))).map(c=><span key={c}>COMPONENT {c}</span>)}</div>
+    </VisualShell>
+  );
+}
+
+function MSTVisualizer({ pattern, frame }: { pattern: Pattern; frame: Frame }) {
+  return (
+    <VisualShell pattern={pattern} frame={frame}>
+      <div className="mst-board">
+        <svg viewBox="0 0 100 100" preserveAspectRatio="none">
+          {(frame.weights || []).map(([a,b,w],i)=>{
+            const selected=(frame.selectedEdges||[]).some(([x,y])=>(x===a&&y===b)||(x===b&&y===a));
+            const x=(dijkstraPositions[a][0]+dijkstraPositions[b][0])/2;
+            const y=(dijkstraPositions[a][1]+dijkstraPositions[b][1])/2;
+            return <g key={i} className={selected?'selected-edge':''}><line x1={dijkstraPositions[a][0]} y1={dijkstraPositions[a][1]} x2={dijkstraPositions[b][0]} y2={dijkstraPositions[b][1]} /><text x={x} y={y}>{w}</text></g>;
+          })}
+        </svg>
+        {(frame.labels||[]).map((label,index)=>{
+          const [x,y]=dijkstraPositions[index];
+          return <div key={label} className={'weighted-node '+(frame.selected?.includes(index)?'visited ':'')+(frame.active?.includes(index)?'active':'')} style={{left:x+'%',top:y+'%'}}><b>{label}</b><small>{frame.parents ? 'r'+frame.parents[index] : ''}</small></div>;
+        })}
+      </div>
+    </VisualShell>
+  );
+}
+
+function AStarVisualizer({ pattern, frame }: { pattern: Pattern; frame: Frame }) {
+  return (
+    <VisualShell pattern={pattern} frame={frame}>
+      <MatrixTraversalVisualizer pattern={pattern} frame={frame} />
+      <div className="astar-score"><span>g <b>{frame.distances?.[0]}</b></span><span>h <b>{frame.heuristic?.[0]}</b></span><span>f <b>{(frame.distances?.[0]||0)+(frame.heuristic?.[0]||0)}</b></span></div>
+    </VisualShell>
+  );
+}
+
+function SparseTableVisualizer({ pattern, frame }: { pattern: Pattern; frame: Frame }) {
+  return (
+    <VisualShell pattern={pattern} frame={frame}>
+      <div className="sparse-table-board">
+        {(frame.sparse||[]).map((row,level)=>(
+          <div className="sparse-level" key={level}><span>2^{level}</span>{row.map((v,i)=><b key={i} className={frame.active?.includes(i)?'active':''}>{v}</b>)}</div>
+        ))}
+      </div>
+    </VisualShell>
+  );
+}
+
+function DPOptimizationVisualizer({ pattern, frame }: { pattern: Pattern; frame: Frame }) {
+  return (
+    <VisualShell pattern={pattern} frame={frame}>
+      <div className="dp-opt-board">
+        {(frame.matrix||[]).map((row,r)=><div className="dp-opt-row" key={r}>{row.map((v,c)=><span key={c}>{v}</span>)}</div>)}
+        <div className="rolling-row"><em>ROLLING</em>{(frame.rolling||[]).map((v,i)=><b key={i}>{v}</b>)}</div>
       </div>
     </VisualShell>
   );
