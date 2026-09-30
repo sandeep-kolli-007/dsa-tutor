@@ -2,6 +2,7 @@ import { useMemo, useState } from 'react';
 
 import type { Frame, Pattern } from '../types/lesson';
 import { Visualizer } from './visualizers/Visualizer';
+import { loadPredictionStats, recordPredictionAnswer } from '../state/prediction';
 
 type Option = { label: string; correct: boolean };
 
@@ -35,6 +36,7 @@ export function PredictionMode({ pattern }: { pattern: Pattern }) {
   const [choice, setChoice] = useState<number | null>(null);
   const [revealed, setRevealed] = useState(false);
   const [score, setScore] = useState({ correct: 0, answered: 0 });
+  const [lifetime, setLifetime] = useState(loadPredictionStats);
   const last = Math.max(0, pattern.frames.length - 2);
   const safeIndex = Math.min(index, last);
   const current = pattern.frames[safeIndex];
@@ -46,8 +48,10 @@ export function PredictionMode({ pattern }: { pattern: Pattern }) {
 
   const reveal = () => {
     if (choice === null || revealed) return;
+    const correct = Boolean(selected?.correct);
     setRevealed(true);
-    setScore((value) => ({ answered: value.answered + 1, correct: value.correct + (selected?.correct ? 1 : 0) }));
+    setScore((value) => ({ answered: value.answered + 1, correct: value.correct + (correct ? 1 : 0) }));
+    setLifetime(recordPredictionAnswer(pattern.id, correct));
   };
 
   const advance = () => {
@@ -60,7 +64,12 @@ export function PredictionMode({ pattern }: { pattern: Pattern }) {
   return <div className="prediction-lab">
     <div className="prediction-head">
       <div><span className="eyebrow">ACTIVE RECALL</span><h3>Predict the next legal state.</h3><p>Read the state, apply the invariant, then commit before revealing the answer.</p></div>
-      <div className="prediction-score"><small>SCORE</small><strong>{score.correct}/{score.answered}</strong></div>
+      <div className="prediction-score">
+        <small>SESSION</small><strong>{score.correct}/{score.answered}</strong>
+        <em>{lifetime.byPattern[pattern.id]?.answered
+          ? Math.round(((lifetime.byPattern[pattern.id]?.correct ?? 0) / (lifetime.byPattern[pattern.id]?.answered ?? 1)) * 100) + '% lifetime'
+          : 'no history'}</em>
+      </div>
     </div>
     <Visualizer pattern={pattern} frame={current} />
     <div className="prediction-question"><span>STATE {safeIndex + 1} OF {pattern.frames.length}</span><h4>What should happen next?</h4></div>
