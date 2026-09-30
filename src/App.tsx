@@ -2912,29 +2912,32 @@ function PatternCard(props: { pattern: Pattern; complete: boolean; onClick: () =
 }
 
 function MiniVisual({ id }: { id: PatternId }) {
-  if (id === 'sliding-window') {
+  if (id === 'sliding-window' || id === 'kadane') {
     return <div className="mini-visual"><i /><i className="hot" /><i className="hot" /><i className="hot" /><i /></div>;
   }
-  if (id === 'two-pointers' || id === 'fast-slow' || id === 'binary-search-answer') {
+  if (id === 'two-pointers' || id === 'fast-slow' || id === 'binary-search-answer' || id === 'cyclic-sort') {
     return <div className="mini-visual pointers"><b>L</b><i /><i /><i /><i /><i /><b>R</b></div>;
   }
-  if (id === 'prefix-sum' || id === 'dynamic-programming' || id === 'dp-2d') {
+  if (id === 'prefix-sum' || id === 'dynamic-programming' || id === 'dp-2d' || id === 'fenwick-tree') {
     return <div className="mini-visual steps"><i /><i className="hot" /><i className="hot tall" /><i className="found taller" /><i /></div>;
   }
-  if (id === 'monotonic-stack' || id === 'heap-top-k') {
+  if (id === 'monotonic-stack' || id === 'heap-top-k' || id === 'k-way-merge') {
     return <div className="mini-visual stack-mini"><i /><i className="hot" /><i className="found" /></div>;
   }
   if (id === 'merge-intervals' || id === 'greedy') {
     return <div className="mini-visual intervals-mini"><i /><i className="hot" /><i /></div>;
   }
-  if (id === 'graph-traversal' || id === 'topological-sort' || id === 'dijkstra' || id === 'union-find') {
+  if (id === 'graph-traversal' || id === 'topological-sort' || id === 'dijkstra' || id === 'union-find' || id === 'bellman-ford') {
     return <div className="mini-visual graph-mini"><i /><i className="hot" /><i /><i className="found" /><i /></div>;
   }
-  if (id === 'backtracking' || id === 'trie') {
+  if (id === 'backtracking' || id === 'trie' || id === 'segment-tree') {
     return <div className="mini-visual branch-mini"><i /><i /><i className="hot" /><i /><i /></div>;
   }
   if (id === 'bit-manipulation') {
     return <div className="mini-visual bits-mini"><b>1</b><b>0</b><b>1</b><b>1</b><b>0</b></div>;
+  }
+  if (id === 'matrix-traversal' || id === 'floyd-warshall') {
+    return <div className="mini-visual matrix-mini"><i /><i className="hot" /><i /><i className="found" /><i /><i /></div>;
   }
   return <div className="mini-visual binary"><i className="dim" /><i className="dim" /><i /><i className="found" /><i /></div>;
 }
@@ -3141,6 +3144,14 @@ function Visualizer({ pattern, frame }: { pattern: Pattern; frame: Frame }) {
   if (pattern.id === 'binary-search-answer') return <AnswerSearchVisualizer pattern={pattern} frame={frame} />;
   if (pattern.id === 'dp-2d') return <DPGridVisualizer pattern={pattern} frame={frame} />;
   if (pattern.id === 'dijkstra') return <DijkstraVisualizer pattern={pattern} frame={frame} />;
+  if (pattern.id === 'kadane') return <KadaneVisualizer pattern={pattern} frame={frame} />;
+  if (pattern.id === 'cyclic-sort') return <CyclicSortVisualizer pattern={pattern} frame={frame} />;
+  if (pattern.id === 'k-way-merge') return <KWayMergeVisualizer pattern={pattern} frame={frame} />;
+  if (pattern.id === 'matrix-traversal') return <MatrixTraversalVisualizer pattern={pattern} frame={frame} />;
+  if (pattern.id === 'segment-tree') return <SegmentTreeVisualizer pattern={pattern} frame={frame} />;
+  if (pattern.id === 'fenwick-tree') return <FenwickVisualizer pattern={pattern} frame={frame} />;
+  if (pattern.id === 'bellman-ford') return <BellmanFordVisualizer pattern={pattern} frame={frame} />;
+  if (pattern.id === 'floyd-warshall') return <FloydWarshallVisualizer pattern={pattern} frame={frame} />;
   return <ArrayVisualizer pattern={pattern} frame={frame} />;
 }
 
@@ -3572,6 +3583,215 @@ function DijkstraVisualizer({ pattern, frame }: { pattern: Pattern; frame: Frame
       <div className="queue-strip">
         <span>MIN-HEAP</span>
         {(frame.queue || []).map((node) => <b key={node}>{frame.labels?.[node]}:{frame.distances?.[node] === 99 ? '∞' : frame.distances?.[node]}</b>)}
+      </div>
+    </VisualShell>
+  );
+}
+
+
+function KadaneVisualizer({ pattern, frame }: { pattern: Pattern; frame: Frame }) {
+  return (
+    <VisualShell pattern={pattern} frame={frame}>
+      <div className="kadane-strip">
+        {frame.values.map((value,index) => {
+          const inCurrent = frame.currentRange && index >= frame.currentRange[0] && index <= frame.currentRange[1];
+          const inBest = frame.bestRange && index >= frame.bestRange[0] && index <= frame.bestRange[1];
+          return (
+            <div key={index} className={'kadane-cell ' + (inBest ? 'best ' : '') + (inCurrent ? 'current ' : '') + (frame.dimmed?.includes(index) ? 'dimmed' : '')}>
+              <small>{index}</small><strong>{value}</strong>
+            </div>
+          );
+        })}
+      </div>
+      <div className="kadane-stats">
+        <span>CURRENT <b>{frame.currentSum}</b></span>
+        <span>BEST <b>{frame.bestSum}</b></span>
+      </div>
+      <div className="kadane-rule">KEEP HISTORY ONLY IF IT HELPS THE NEXT POSITION</div>
+    </VisualShell>
+  );
+}
+
+function CyclicSortVisualizer({ pattern, frame }: { pattern: Pattern; frame: Frame }) {
+  return (
+    <VisualShell pattern={pattern} frame={frame}>
+      <div className="home-labels">
+        {frame.values.map((_,index) => <span key={index}>HOME {index + 1}</span>)}
+      </div>
+      <div className="cyclic-row">
+        {frame.values.map((value,index) => {
+          const swap = frame.swap?.includes(index);
+          const home = value === index + 1;
+          return (
+            <div className={'cyclic-cell ' + (home ? 'home ' : '') + (swap ? 'swap' : '')} key={index}>
+              <small>idx {index}</small><strong>{value}</strong>
+              <em>{home ? '✓' : '→ ' + (value - 1)}</em>
+            </div>
+          );
+        })}
+      </div>
+      {frame.swap && <div className="swap-readout">SWAP INDEX {frame.swap[0]} ↔ {frame.swap[1]}</div>}
+    </VisualShell>
+  );
+}
+
+function KWayMergeVisualizer({ pattern, frame }: { pattern: Pattern; frame: Frame }) {
+  return (
+    <VisualShell pattern={pattern} frame={frame}>
+      <div className="kmerge-layout">
+        <div className="kmerge-lists">
+          {(frame.arrays || []).map((row,rowIndex) => (
+            <div className="kmerge-row" key={rowIndex}>
+              <span>L{rowIndex + 1}</span>
+              {row.map((value,index) => (
+                <b key={index} className={(frame.heads?.[rowIndex] === index ? 'head ' : '') + (index < (frame.heads?.[rowIndex] ?? 0) ? 'used' : '')}>{value}</b>
+              ))}
+            </div>
+          ))}
+        </div>
+        <div className="kmerge-heap">
+          <small>MIN-HEAP</small>
+          <div>{frame.values.map((value,index) => <b key={index}>{value}</b>)}</div>
+        </div>
+      </div>
+      <div className="kmerge-output">LATEST OUTPUT <strong>{frame.chosen ?? '—'}</strong></div>
+    </VisualShell>
+  );
+}
+
+function MatrixTraversalVisualizer({ pattern, frame }: { pattern: Pattern; frame: Frame }) {
+  return (
+    <VisualShell pattern={pattern} frame={frame}>
+      <div className="matrix-walk-grid">
+        {(frame.matrix || []).map((row,r) =>
+          row.map((value,c) => {
+            const active = frame.cell?.[0] === r && frame.cell?.[1] === c;
+            const visited = value === 2;
+            const blocked = value === 0;
+            return (
+              <div key={r+'-'+c} className={'matrix-walk-cell ' + (active ? 'active ' : '') + (visited ? 'visited ' : '') + (blocked ? 'blocked' : '')}>
+                <small>{r},{c}</small>
+                <strong>{blocked ? '■' : visited ? '✓' : '·'}</strong>
+              </div>
+            );
+          })
+        )}
+      </div>
+      <div className="direction-pad">
+        <span>↑</span><span>←</span><b>4 DIR</b><span>→</span><span>↓</span>
+      </div>
+    </VisualShell>
+  );
+}
+
+function SegmentTreeVisualizer({ pattern, frame }: { pattern: Pattern; frame: Frame }) {
+  const nodes = frame.tree || [];
+  return (
+    <VisualShell pattern={pattern} frame={frame}>
+      <div className="segment-board">
+        {nodes.map((node,index) => {
+          const parent = index === 0 ? null : Math.floor((index - 1) / 2);
+          const parentNode = parent === null ? null : nodes[parent];
+          const top = 16 + node.level * 34;
+          const parentTop = parentNode ? 16 + parentNode.level * 34 : 0;
+          const left = node.pos;
+          const parentLeft = parentNode?.pos ?? left;
+          const width = Math.abs(left - parentLeft);
+          const start = Math.min(left, parentLeft);
+          return (
+            <div key={index}>
+              {parentNode && <i className="segment-edge" style={{ left:start+'%', top:(parentTop+7)+'%', width:width+'%', transform: left < parentLeft ? 'rotate(-18deg)' : 'rotate(18deg)' }} />}
+              <div className={'segment-node ' + (node.active ? 'active' : '')} style={{ left:left+'%', top:top+'%' }}>
+                <small>{node.label}</small><strong>{node.value}</strong>
+              </div>
+            </div>
+          );
+        })}
+      </div>
+      <div className="segment-legend"><span>RANGE</span><b>AGGREGATE</b></div>
+    </VisualShell>
+  );
+}
+
+function FenwickVisualizer({ pattern, frame }: { pattern: Pattern; frame: Frame }) {
+  return (
+    <VisualShell pattern={pattern} frame={frame}>
+      <div className="fenwick-bars">
+        {(frame.fenwick || []).slice(1).map((value,index) => {
+          const oneBased = index + 1;
+          const active = frame.active?.includes(index);
+          return (
+            <div className={'fenwick-bar-wrap ' + (active ? 'active' : '')} key={oneBased}>
+              <div className="fenwick-bar" style={{ height: Math.max(28, value * 4) + 'px' }}><strong>{value}</strong></div>
+              <small>{oneBased}</small>
+              <em>lb {oneBased & -oneBased}</em>
+            </div>
+          );
+        })}
+      </div>
+      <div className="fenwick-rule">QUERY: i -= lowbit(i) &nbsp; · &nbsp; UPDATE: i += lowbit(i)</div>
+    </VisualShell>
+  );
+}
+
+function BellmanFordVisualizer({ pattern, frame }: { pattern: Pattern; frame: Frame }) {
+  return (
+    <VisualShell pattern={pattern} frame={frame}>
+      <div className="bellman-pass">RELAXATION PASS <strong>{frame.pass}</strong></div>
+      <WeightedGraphCore frame={frame} />
+      <div className="distance-strip">
+        {(frame.labels || []).map((label,index) => <span key={label}>{label}<b>{frame.distances?.[index] === 99 ? '∞' : frame.distances?.[index]}</b></span>)}
+      </div>
+    </VisualShell>
+  );
+}
+
+function WeightedGraphCore({ frame }: { frame: Frame }) {
+  return (
+    <div className="weighted-board compact-weighted">
+      <svg viewBox="0 0 100 100" preserveAspectRatio="none">
+        {(frame.weights || []).map(([a,b,w],index) => {
+          const x = (dijkstraPositions[a][0] + dijkstraPositions[b][0]) / 2;
+          const y = (dijkstraPositions[a][1] + dijkstraPositions[b][1]) / 2;
+          return (
+            <g key={index}>
+              <line x1={dijkstraPositions[a][0]} y1={dijkstraPositions[a][1]} x2={dijkstraPositions[b][0]} y2={dijkstraPositions[b][1]} />
+              <text x={x} y={y}>{w}</text>
+            </g>
+          );
+        })}
+      </svg>
+      {(frame.labels || []).map((label,index) => {
+        const [x,y] = dijkstraPositions[index];
+        return (
+          <div key={label} className={'weighted-node ' + (frame.active?.includes(index) ? 'active' : '')} style={{ left:x+'%', top:y+'%' }}>
+            <b>{label}</b><small>{frame.distances?.[index] === 99 ? '∞' : frame.distances?.[index]}</small>
+          </div>
+        );
+      })}
+    </div>
+  );
+}
+
+function FloydWarshallVisualizer({ pattern, frame }: { pattern: Pattern; frame: Frame }) {
+  const matrix = frame.matrix || [];
+  return (
+    <VisualShell pattern={pattern} frame={frame}>
+      <div className="floyd-stage">
+        <div className="floyd-hub">ALLOWED HUBS <strong>{frame.pass}</strong></div>
+        <div className="floyd-matrix" style={{ gridTemplateColumns: '42px repeat(' + matrix.length + ', 62px)' }}>
+          <div />
+          {matrix.map((_,i) => <b className="matrix-head" key={'h'+i}>{String.fromCharCode(65+i)}</b>)}
+          {matrix.map((row,r) => (
+            <>
+              <b className="matrix-head" key={'r'+r}>{String.fromCharCode(65+r)}</b>
+              {row.map((value,c) => {
+                const active = frame.cell?.[0] === r && frame.cell?.[1] === c;
+                return <span key={r+'-'+c} className={active ? 'active' : ''}>{value === 99 ? '∞' : value}</span>;
+              })}
+            </>
+          ))}
+        </div>
       </div>
     </VisualShell>
   );
