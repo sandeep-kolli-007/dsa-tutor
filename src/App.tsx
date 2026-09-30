@@ -11,6 +11,7 @@ import { Lesson } from './pages/Lesson';
 import { Practice } from './pages/Practice';
 import { CodePractice } from './pages/CodePractice';
 import { useHashNavigation } from './hooks/useHashNavigation';
+import { recordActivity } from './state/activity';
 
 function App() {
   const { page, patternId, codeProblemId, navigate } = useHashNavigation();
@@ -31,6 +32,7 @@ function App() {
     const next = completed.includes(id) ? completed : [...completed, id];
     setCompleted(next);
     saveProgress(next);
+    if (!completed.includes(id)) recordActivity({ kind: 'lesson_complete', patternId: id, success: true });
   };
 
   return (

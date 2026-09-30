@@ -1,5 +1,6 @@
 import type { PatternId } from '../types/lesson';
 import { reviewDelayMs } from '../engine/reviewScheduler';
+import { recordActivity } from './activity';
 
 export type PatternPracticeStats = {
   answered: number;
@@ -58,5 +59,6 @@ export function recordPracticeAnswer(patternId: PatternId, isCorrect: boolean, n
   };
 
   localStorage.setItem(storageKey, JSON.stringify(next));
+  recordActivity({ kind: 'recognition_answer', patternId, success: isCorrect, at: now });
   return next;
 }

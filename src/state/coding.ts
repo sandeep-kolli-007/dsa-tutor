@@ -1,3 +1,5 @@
+import { recordActivity } from './activity';
+
 export type CodingProblemStats = {
   attempts: number;
   solved: boolean;
@@ -32,7 +34,7 @@ export function loadCodingStats(): CodingStats {
   }
 }
 
-export function recordCodingAttempt(problemId: string, solved: boolean): CodingStats {
+export function recordCodingAttempt(problemId: string, solved: boolean, patternId?: import('../types/lesson').PatternId): CodingStats {
   const current = loadCodingStats();
   const previous = current.byProblem[problemId] ?? { attempts: 0, solved: false };
   const nowSolved = previous.solved || solved;
@@ -53,5 +55,6 @@ export function recordCodingAttempt(problemId: string, solved: boolean): CodingS
   };
 
   localStorage.setItem(storageKey, JSON.stringify(next));
+  recordActivity({ kind: 'coding_attempt', problemId, patternId, success: solved });
   return next;
 }
