@@ -27,7 +27,7 @@ import {
 } from 'ionicons/icons';
 
 type Page = 'home' | 'learn' | 'progress' | 'lesson';
-type PatternId = 'sliding-window' | 'two-pointers' | 'binary-search';
+type PatternId = 'sliding-window' | 'two-pointers' | 'binary-search' | 'prefix-sum' | 'fast-slow' | 'monotonic-stack' | 'merge-intervals' | 'graph-traversal' | 'heap-top-k' | 'backtracking' | 'dynamic-programming';
 
 type Frame = {
   title: string;
@@ -44,6 +44,17 @@ type Frame = {
   incoming?: number;
   metric?: string;
   codeLine: number;
+  prefix?: number[];
+  slow?: number;
+  fast?: number;
+  stack?: number[];
+  queue?: number[];
+  visited?: number[];
+  edges?: [number, number][];
+  intervals?: [number, number][];
+  merged?: [number, number][];
+  path?: number[];
+  dp?: number[];
 };
 
 type Pattern = {
@@ -377,7 +388,729 @@ const patterns: Pattern[] = [
       correct: 1,
       explanation: 'The answer space is monotonic: once a capacity is feasible, every larger capacity is also feasible.',
     },
+  },,
+  {
+    id: 'prefix-sum',
+    no: '04',
+    title: 'Prefix Sum',
+    subtitle: 'Precompute cumulative totals so range questions become subtraction.',
+    category: 'ARRAY PATTERN',
+    summary: 'Trade one preprocessing pass for constant-time range sums and repeated queries.',
+    analogyTitle: 'Read a bank statement using running balances',
+    analogyBody:
+      'Instead of adding every transaction again whenever someone asks how much changed between Tuesday and Friday, keep a running balance. The change between two dates is just one cumulative total minus another.',
+    mapping: [
+      ['Daily transactions', 'Array values'],
+      ['Running balance', 'Prefix array'],
+      ['Date range', 'Subarray [L..R]'],
+      ['Balance difference', 'prefix[R + 1] - prefix[L]'],
+    ],
+    invariant: 'prefix[i] stores the total of every original value before index i.',
+    signals: [
+      'Many range-sum queries',
+      'Repeated work over the same prefix',
+      'Subarray totals',
+      'Need O(1) query after O(n) setup',
+    ],
+    avoid: [
+      'The array changes constantly without a data structure for updates',
+      'Only one tiny query exists',
+      'The operation cannot be inverted by subtraction',
+    ],
+    complexity: { time: 'O(n) build, O(1) query', space: 'O(n)' },
+    frames: [
+      {
+        title: 'Start with raw daily changes',
+        explanation: 'These are the original values. A direct range query would add them again each time.',
+        values: [3, -1, 4, 2, 5],
+        active: [0],
+        prefix: [0, 3, 2, 6, 8, 13],
+        metric: 'BUILD PREFIX',
+        codeLine: 1,
+      },
+      {
+        title: 'Carry the total forward',
+        explanation: 'After reading 3 and -1, the running total is 2.',
+        values: [3, -1, 4, 2, 5],
+        active: [0, 1],
+        prefix: [0, 3, 2, 6, 8, 13],
+        metric: 'PREFIX[2] = 2',
+        codeLine: 3,
+      },
+      {
+        title: 'Finish the cumulative array',
+        explanation: 'Every position now answers: how much have we accumulated before here?',
+        values: [3, -1, 4, 2, 5],
+        active: [0, 1, 2, 3, 4],
+        prefix: [0, 3, 2, 6, 8, 13],
+        metric: '0 3 2 6 8 13',
+        codeLine: 3,
+      },
+      {
+        title: 'Ask for indices 1 through 3',
+        explanation: 'Take everything before index 4, then remove everything before index 1.',
+        values: [3, -1, 4, 2, 5],
+        active: [1, 2, 3],
+        dimmed: [0, 4],
+        prefix: [0, 3, 2, 6, 8, 13],
+        metric: '8 - 3 = 5',
+        codeLine: 6,
+      },
+    ],
+    code: [
+      'function buildPrefix(nums) {',
+      '  const prefix = Array(nums.length + 1).fill(0);',
+      '  for (let i = 0; i < nums.length; i++) {',
+      '    prefix[i + 1] = prefix[i] + nums[i];',
+      '  }',
+      '  return (left, right) =>',
+      '    prefix[right + 1] - prefix[left];',
+      '}',
+    ],
+    quiz: {
+      question: 'You must answer 100,000 sum queries over an array that does not change. Which pattern removes repeated addition?',
+      options: ['Prefix Sum', 'Heap', 'DFS', 'Fast & Slow'],
+      correct: 0,
+      explanation: 'One cumulative preprocessing pass lets every later range sum use only two prefix values.',
+    },
   },
+  {
+    id: 'fast-slow',
+    no: '05',
+    title: 'Fast & Slow Pointers',
+    subtitle: 'Let two runners move at different speeds to expose cycles and midpoints.',
+    category: 'LINKED PATTERN',
+    summary: 'Different pointer speeds reveal structure without extra memory.',
+    analogyTitle: 'Two runners on a circular track',
+    analogyBody:
+      'If one runner moves twice as fast as another on a circular track, the faster runner must eventually lap the slower one. In a linked list, a meeting proves that a cycle exists.',
+    mapping: [
+      ['Runner moving 1 step', 'slow pointer'],
+      ['Runner moving 2 steps', 'fast pointer'],
+      ['Circular track', 'Linked-list cycle'],
+      ['Runners meet', 'Cycle detected'],
+    ],
+    invariant: 'If a cycle exists, the fast pointer gains one node on the slow pointer every iteration until they meet.',
+    signals: [
+      'Linked-list cycle',
+      'Find the middle node',
+      'Repeated state in a chain',
+      'Need O(1) extra space',
+    ],
+    avoid: [
+      'Random access is the main operation',
+      'You need the complete visited history',
+      'Pointers cannot advance deterministically',
+    ],
+    complexity: { time: 'O(n)', space: 'O(1)' },
+    frames: [
+      {
+        title: 'Both runners start together',
+        explanation: 'Slow moves one node per round. Fast moves two.',
+        values: [1, 2, 3, 4, 5, 6],
+        slow: 0,
+        fast: 0,
+        metric: 'START',
+        codeLine: 1,
+      },
+      {
+        title: 'Fast begins gaining',
+        explanation: 'Slow is at node 2. Fast has already reached node 3.',
+        values: [1, 2, 3, 4, 5, 6],
+        slow: 1,
+        fast: 2,
+        metric: 'SLOW 2 · FAST 3',
+        codeLine: 4,
+      },
+      {
+        title: 'The list loops back',
+        explanation: 'After node 6, the next pointer returns to node 3. Fast stays inside the loop.',
+        values: [1, 2, 3, 4, 5, 6],
+        slow: 2,
+        fast: 4,
+        metric: '6 → 3',
+        codeLine: 5,
+      },
+      {
+        title: 'The runners meet',
+        explanation: 'Inside a finite cycle, the faster pointer eventually catches the slower pointer.',
+        values: [1, 2, 3, 4, 5, 6],
+        slow: 4,
+        fast: 4,
+        metric: 'CYCLE ✓',
+        codeLine: 6,
+      },
+    ],
+    code: [
+      'function hasCycle(head) {',
+      '  let slow = head, fast = head;',
+      '  while (fast && fast.next) {',
+      '    slow = slow.next;',
+      '    fast = fast.next.next;',
+      '    if (slow === fast) return true;',
+      '  }',
+      '  return false;',
+      '}',
+    ],
+    quiz: {
+      question: 'You must detect a cycle in a linked list using O(1) extra space. Which pattern fits naturally?',
+      options: ['Prefix Sum', 'Fast & Slow Pointers', 'Heap', 'Merge Intervals'],
+      correct: 1,
+      explanation: 'Different pointer speeds guarantee a meeting inside a cycle without storing a visited set.',
+    },
+  },
+  {
+    id: 'monotonic-stack',
+    no: '06',
+    title: 'Monotonic Stack',
+    subtitle: 'Keep only candidates that can still matter to the future.',
+    category: 'STACK PATTERN',
+    summary: 'Maintain increasing or decreasing order so each new value can resolve older candidates immediately.',
+    analogyTitle: 'People waiting to see the next taller person',
+    analogyBody:
+      'Imagine people standing in a line looking to the right. When a taller person arrives, they immediately answer the question for every shorter person waiting on the stack.',
+    mapping: [
+      ['People waiting', 'Stack entries'],
+      ['New taller person', 'Current value'],
+      ['Shorter people leave', 'Pop while invalid'],
+      ['Still waiting', 'Monotonic invariant'],
+    ],
+    invariant: 'After each element, the stack preserves one monotonic order; anything that violates it is resolved and removed.',
+    signals: [
+      'Next greater / next smaller',
+      'Previous greater / previous smaller',
+      'Histogram boundaries',
+      'Need nearest element satisfying an order relation',
+    ],
+    avoid: [
+      'You need every pair, not the nearest useful one',
+      'No monotonic relation can prune candidates',
+      'Elements must be revisited arbitrarily',
+    ],
+    complexity: { time: 'O(n)', space: 'O(n)' },
+    frames: [
+      {
+        title: 'Push the first unresolved value',
+        explanation: 'Temperature 73 has not seen a warmer day yet, so it waits on the stack.',
+        values: [73, 74, 75, 71, 69, 72],
+        active: [0],
+        stack: [73],
+        metric: 'STACK [73]',
+        codeLine: 2,
+      },
+      {
+        title: 'A warmer value resolves 73',
+        explanation: '74 is greater than the stack top 73, so 73 can be popped and answered.',
+        values: [73, 74, 75, 71, 69, 72],
+        active: [1],
+        dimmed: [0],
+        stack: [74],
+        metric: 'POP 73 → PUSH 74',
+        codeLine: 4,
+      },
+      {
+        title: '75 resolves 74',
+        explanation: 'Again, the new value is greater than the top. Pop until order is restored.',
+        values: [73, 74, 75, 71, 69, 72],
+        active: [2],
+        dimmed: [0, 1],
+        stack: [75],
+        metric: 'STACK [75]',
+        codeLine: 4,
+      },
+      {
+        title: 'Smaller values can wait',
+        explanation: '71 then 69 are smaller than 75, so the decreasing stack remains valid.',
+        values: [73, 74, 75, 71, 69, 72],
+        active: [3, 4],
+        stack: [75, 71, 69],
+        metric: '75 > 71 > 69',
+        codeLine: 7,
+      },
+      {
+        title: '72 resolves multiple candidates',
+        explanation: '72 pops 69 and 71, then stops at 75. Each value enters and leaves the stack at most once.',
+        values: [73, 74, 75, 71, 69, 72],
+        active: [5],
+        stack: [75, 72],
+        dimmed: [0, 1, 3, 4],
+        metric: 'POP 69, 71',
+        codeLine: 4,
+      },
+    ],
+    code: [
+      'function nextWarmer(temps) {',
+      '  const stack = [];',
+      '  const answer = Array(temps.length).fill(0);',
+      '  for (let i = 0; i < temps.length; i++) {',
+      '    while (stack.length && temps[i] > temps[stack.at(-1)]) {',
+      '      const prev = stack.pop();',
+      '      answer[prev] = i - prev;',
+      '    }',
+      '    stack.push(i);',
+      '  }',
+      '  return answer;',
+      '}',
+    ],
+    quiz: {
+      question: 'For every day, find how many days until a warmer temperature. Which pattern is designed for this?',
+      options: ['Binary Search', 'Monotonic Stack', 'Union Find', 'Prefix Sum'],
+      correct: 1,
+      explanation: 'The stack keeps unresolved days in monotonic order and resolves them when a warmer value arrives.',
+    },
+  },
+  {
+    id: 'merge-intervals',
+    no: '07',
+    title: 'Merge Intervals',
+    subtitle: 'Sort ranges so overlap becomes a local decision.',
+    category: 'INTERVAL PATTERN',
+    summary: 'Once intervals are ordered by start time, you only need to compare the current interval with the last merged interval.',
+    analogyTitle: 'Combine overlapping calendar meetings',
+    analogyBody:
+      'If meetings are sorted by start time, you do not compare every meeting with every other meeting. You only ask whether the next meeting starts before the current combined block ends.',
+    mapping: [
+      ['Meeting start/end', 'Interval [start, end]'],
+      ['Sort by start time', 'Normalize order'],
+      ['Overlapping meetings', 'Merge'],
+      ['Gap between meetings', 'Start a new block'],
+    ],
+    invariant: 'The output contains disjoint intervals, and only its last interval can overlap the next sorted interval.',
+    signals: [
+      'Ranges with start/end',
+      'Overlap or coverage',
+      'Scheduling conflicts',
+      'Insert / merge interval',
+    ],
+    avoid: [
+      'Order has no meaning',
+      'You need point-by-point frequencies instead',
+      'Intervals are multidimensional regions',
+    ],
+    complexity: { time: 'O(n log n)', space: 'O(n)' },
+    frames: [
+      {
+        title: 'Sort meetings by start',
+        explanation: 'After sorting, possible overlap only needs to be checked against the previous merged block.',
+        values: [1, 3, 2, 6, 8, 10, 15, 18],
+        intervals: [[1,3],[2,6],[8,10],[15,18]],
+        active: [0],
+        merged: [[1,3]],
+        metric: 'SORTED',
+        codeLine: 1,
+      },
+      {
+        title: 'The next meeting overlaps',
+        explanation: '2 starts before 3 ends, so [1,3] and [2,6] become [1,6].',
+        values: [1, 2, 3, 6, 8, 10],
+        intervals: [[1,3],[2,6],[8,10],[15,18]],
+        active: [0,1],
+        merged: [[1,6]],
+        metric: '[1,3] + [2,6]',
+        codeLine: 5,
+      },
+      {
+        title: 'A gap starts a new block',
+        explanation: '8 is after 6, so [8,10] cannot overlap [1,6]. Append it.',
+        values: [1, 6, 8, 10],
+        intervals: [[1,3],[2,6],[8,10],[15,18]],
+        active: [2],
+        merged: [[1,6],[8,10]],
+        metric: 'NEW BLOCK',
+        codeLine: 7,
+      },
+      {
+        title: 'Finish in one scan',
+        explanation: 'The final interval is also separate. Sorting converted a global overlap problem into local comparisons.',
+        values: [1,6,8,10,15,18],
+        intervals: [[1,3],[2,6],[8,10],[15,18]],
+        active: [3],
+        merged: [[1,6],[8,10],[15,18]],
+        metric: '3 MERGED BLOCKS',
+        codeLine: 8,
+      },
+    ],
+    code: [
+      'function merge(intervals) {',
+      '  intervals.sort((a, b) => a[0] - b[0]);',
+      '  const out = [];',
+      '  for (const current of intervals) {',
+      '    const last = out.at(-1);',
+      '    if (last && current[0] <= last[1])',
+      '      last[1] = Math.max(last[1], current[1]);',
+      '    else out.push([...current]);',
+      '  }',
+      '  return out;',
+      '}',
+    ],
+    quiz: {
+      question: 'You receive meeting time ranges and need to combine every overlap. What should you think of first?',
+      options: ['Merge Intervals', 'Sliding Window', 'Fast & Slow', 'Heap only'],
+      correct: 0,
+      explanation: 'Sort by start time, then each interval only needs to interact with the final merged block.',
+    },
+  },
+  {
+    id: 'graph-traversal',
+    no: '08',
+    title: 'BFS / DFS',
+    subtitle: 'Explore a connected world systematically instead of wandering randomly.',
+    category: 'GRAPH PATTERN',
+    summary: 'Traversal is the foundation for connectivity, components, shortest unweighted paths, flood fill, and tree exploration.',
+    analogyTitle: 'Spread a message through a friend network',
+    analogyBody:
+      'BFS spreads a message friend-by-friend in waves, so the first time someone hears it is through the fewest connections. DFS follows one chain deeply before coming back to try another.',
+    mapping: [
+      ['People', 'Nodes'],
+      ['Friendships', 'Edges'],
+      ['Already informed', 'Visited set'],
+      ['Wavefront / deep path', 'Queue / stack'],
+    ],
+    invariant: 'A node is processed only after it is discovered, and discovered nodes are marked so the traversal never loops forever.',
+    signals: [
+      'Connected components',
+      'Shortest path in an unweighted graph',
+      'Grid / island traversal',
+      'Tree level order or recursive exploration',
+    ],
+    avoid: [
+      'Edges have meaningful unequal weights for shortest paths',
+      'You need ordering constraints instead of reachability',
+      'The state space is too large without pruning',
+    ],
+    complexity: { time: 'O(V + E)', space: 'O(V)' },
+    frames: [
+      {
+        title: 'Start at person A',
+        explanation: 'Mark A visited and put it in the queue.',
+        values: [0,1,2,3,4,5],
+        edges: [[0,1],[0,2],[1,3],[1,4],[2,4],[4,5]],
+        active: [0],
+        visited: [0],
+        queue: [0],
+        metric: 'QUEUE A',
+        codeLine: 2,
+      },
+      {
+        title: 'Discover A’s neighbors',
+        explanation: 'B and C are one edge away. Mark them immediately when they enter the queue.',
+        values: [0,1,2,3,4,5],
+        edges: [[0,1],[0,2],[1,3],[1,4],[2,4],[4,5]],
+        active: [1,2],
+        visited: [0,1,2],
+        queue: [1,2],
+        metric: 'LEVEL 1',
+        codeLine: 7,
+      },
+      {
+        title: 'Expand the next wave',
+        explanation: 'Process B, then C. D and E become the next frontier.',
+        values: [0,1,2,3,4,5],
+        edges: [[0,1],[0,2],[1,3],[1,4],[2,4],[4,5]],
+        active: [3,4],
+        visited: [0,1,2,3,4],
+        queue: [3,4],
+        metric: 'LEVEL 2',
+        codeLine: 7,
+      },
+      {
+        title: 'Every node is visited once',
+        explanation: 'F is discovered from E. The visited set prevents repeated work through cycles.',
+        values: [0,1,2,3,4,5],
+        edges: [[0,1],[0,2],[1,3],[1,4],[2,4],[4,5]],
+        active: [5],
+        visited: [0,1,2,3,4,5],
+        queue: [5],
+        metric: 'ALL REACHED ✓',
+        codeLine: 9,
+      },
+    ],
+    code: [
+      'function bfs(graph, start) {',
+      '  const queue = [start];',
+      '  const seen = new Set([start]);',
+      '  while (queue.length) {',
+      '    const node = queue.shift();',
+      '    for (const next of graph[node]) {',
+      '      if (seen.has(next)) continue;',
+      '      seen.add(next);',
+      '      queue.push(next);',
+      '    }',
+      '  }',
+      '}',
+    ],
+    quiz: {
+      question: 'Find the minimum number of flights in an unweighted route graph from city A to city B. Which traversal gives the answer naturally?',
+      options: ['DFS only', 'BFS', 'Prefix Sum', 'Monotonic Stack'],
+      correct: 1,
+      explanation: 'BFS explores nodes by distance layers, so the first arrival uses the fewest unweighted edges.',
+    },
+  },
+  {
+    id: 'heap-top-k',
+    no: '09',
+    title: 'Heap / Top-K',
+    subtitle: 'Keep only the best K candidates instead of sorting everything.',
+    category: 'PRIORITY PATTERN',
+    summary: 'A heap gives fast access to the current smallest or largest boundary of a candidate set.',
+    analogyTitle: 'Maintain a live top-3 leaderboard',
+    analogyBody:
+      'Scores keep arriving. Instead of sorting every score after every update, keep only the best three. The weakest score among the current winners sits at the top of a small min-heap and is easy to replace.',
+    mapping: [
+      ['Incoming score', 'Stream element'],
+      ['Top 3 players', 'Heap of size K'],
+      ['Weakest winner', 'Heap root'],
+      ['Better score arrives', 'Pop root + push candidate'],
+    ],
+    invariant: 'The heap contains exactly the best K candidates seen so far; its root is the boundary candidate.',
+    signals: [
+      'Top K / Kth largest / Kth smallest',
+      'Repeated min/max extraction',
+      'Streaming ranking',
+      'Merge several sorted sources',
+    ],
+    avoid: [
+      'You need the entire output fully sorted',
+      'K is almost N and a full sort is simpler',
+      'Random lookup dominates the workload',
+    ],
+    complexity: { time: 'O(n log k)', space: 'O(k)' },
+    frames: [
+      {
+        title: 'Fill the first three leaderboard slots',
+        explanation: 'For K = 3, keep a min-heap so the weakest current winner is easy to remove.',
+        values: [5,9,7,12,8,15],
+        active: [0,1,2],
+        stack: [5,9,7],
+        metric: 'TOP 3 CANDIDATES',
+        codeLine: 2,
+      },
+      {
+        title: 'A score of 12 arrives',
+        explanation: '12 beats the heap root 5. Remove 5 and insert 12.',
+        values: [5,9,7,12,8,15],
+        active: [3],
+        dimmed: [0],
+        stack: [7,9,12],
+        metric: 'DROP 5 · ADD 12',
+        codeLine: 5,
+      },
+      {
+        title: 'Score 8 beats the boundary',
+        explanation: 'The current weakest winner is 7. Replace it with 8.',
+        values: [5,9,7,12,8,15],
+        active: [4],
+        dimmed: [0,2],
+        stack: [8,12,9],
+        metric: 'TOP = 8',
+        codeLine: 5,
+      },
+      {
+        title: '15 enters the top three',
+        explanation: 'Replace the smallest winner 8. The heap now represents {9,12,15}.',
+        values: [5,9,7,12,8,15],
+        active: [5],
+        dimmed: [0,2,4],
+        stack: [9,12,15],
+        metric: '9 · 12 · 15',
+        codeLine: 5,
+      },
+    ],
+    code: [
+      'function topK(nums, k) {',
+      '  const heap = new MinHeap();',
+      '  for (const value of nums) {',
+      '    heap.push(value);',
+      '    if (heap.size > k) heap.pop();',
+      '  }',
+      '  return heap.values();',
+      '}',
+    ],
+    quiz: {
+      question: 'Millions of scores stream in and you only need the highest 10 at any moment. Which pattern avoids sorting all scores?',
+      options: ['Heap / Top-K', 'Merge Intervals', 'DFS', 'Prefix Sum'],
+      correct: 0,
+      explanation: 'A min-heap of size 10 keeps only the winners, giving O(log k) work per incoming score.',
+    },
+  },
+  {
+    id: 'backtracking',
+    no: '10',
+    title: 'Backtracking',
+    subtitle: 'Choose, explore, undo — and prune paths that cannot succeed.',
+    category: 'SEARCH PATTERN',
+    summary: 'Backtracking explores a decision tree while carrying only the current partial solution.',
+    analogyTitle: 'Try combinations on a lock',
+    analogyBody:
+      'You choose one digit, continue only while the partial combination is allowed, and undo that choice when the path fails. You do not copy the whole lock state for every attempt.',
+    mapping: [
+      ['Pick a digit', 'Choose'],
+      ['Try the rest', 'Explore recursively'],
+      ['Wrong branch', 'Prune / return'],
+      ['Remove the digit', 'Undo choice'],
+    ],
+    invariant: 'Before returning from a recursive call, restore the state exactly to what it was before the choice.',
+    signals: [
+      'Generate combinations / permutations',
+      'Constraint satisfaction',
+      'All possible valid configurations',
+      'Decision tree with reversible choices',
+    ],
+    avoid: [
+      'A greedy choice is provably sufficient',
+      'Subproblems repeat heavily and should be memoized',
+      'The search tree is enormous without pruning',
+    ],
+    complexity: { time: 'Problem-dependent / exponential', space: 'O(depth)' },
+    frames: [
+      {
+        title: 'Choose the first option',
+        explanation: 'Start building a permutation from [1,2,3]. Pick 1.',
+        values: [1,2,3],
+        active: [0],
+        path: [1],
+        metric: 'PATH [1]',
+        codeLine: 3,
+      },
+      {
+        title: 'Explore deeper',
+        explanation: 'Pick 2 next. The partial solution is now [1,2].',
+        values: [1,2,3],
+        active: [0,1],
+        path: [1,2],
+        metric: 'PATH [1,2]',
+        codeLine: 5,
+      },
+      {
+        title: 'Complete one solution',
+        explanation: 'Pick 3. Record [1,2,3] as a valid permutation.',
+        values: [1,2,3],
+        active: [0,1,2],
+        path: [1,2,3],
+        metric: 'SOLUTION ✓',
+        codeLine: 1,
+      },
+      {
+        title: 'Undo the last choice',
+        explanation: 'Pop 3, then pop 2. The state returns to [1], ready to try a different branch.',
+        values: [1,2,3],
+        active: [0],
+        path: [1],
+        metric: 'UNDO',
+        codeLine: 7,
+      },
+      {
+        title: 'Try the sibling branch',
+        explanation: 'From [1], choose 3 next. Backtracking systematically covers every valid branch.',
+        values: [1,2,3],
+        active: [0,2],
+        path: [1,3],
+        metric: 'NEXT BRANCH',
+        codeLine: 5,
+      },
+    ],
+    code: [
+      'function permute(nums, path = [], used = new Set()) {',
+      '  if (path.length === nums.length) output.push([...path]);',
+      '  for (const value of nums) {',
+      '    if (used.has(value)) continue;',
+      '    used.add(value); path.push(value);',
+      '    permute(nums, path, used);',
+      '    path.pop(); used.delete(value);',
+      '  }',
+      '}',
+    ],
+    quiz: {
+      question: 'Generate every valid arrangement of N queens while abandoning placements that already attack another queen. Which pattern is this?',
+      options: ['Sliding Window', 'Backtracking', 'Prefix Sum', 'Heap'],
+      correct: 1,
+      explanation: 'Each queen placement is a reversible choice, and invalid partial boards can be pruned immediately.',
+    },
+  },
+  {
+    id: 'dynamic-programming',
+    no: '11',
+    title: 'Dynamic Programming',
+    subtitle: 'Solve repeated subproblems once, then build larger answers from them.',
+    category: 'DP PATTERN',
+    summary: 'DP is structured reuse: define state, transition, base cases, and evaluation order.',
+    analogyTitle: 'Reuse the cheapest known travel cost',
+    analogyBody:
+      'When planning a route with repeated sub-routes, you do not recompute the cheapest cost to the same city every time. Store the answer and use it as a building block for later decisions.',
+    mapping: [
+      ['Current location/state', 'DP state'],
+      ['Known small answers', 'Base cases'],
+      ['Combine previous costs', 'Transition'],
+      ['Store each result', 'Memo / table'],
+    ],
+    invariant: 'When computing a state, every dependency used by its transition is already correct and available.',
+    signals: [
+      'Overlapping subproblems',
+      'Optimal count / cost / number of ways',
+      'Choices lead to repeated states',
+      'Answer can be expressed from smaller answers',
+    ],
+    avoid: [
+      'Subproblems never repeat',
+      'A simpler greedy invariant solves it',
+      'State definition would explode exponentially',
+    ],
+    complexity: { time: 'States × transitions', space: 'Number of states' },
+    frames: [
+      {
+        title: 'Define the base states',
+        explanation: 'For climbing stairs, there is 1 way to stand before the stairs and 1 way to reach step 1.',
+        values: [0,1,2,3,4,5],
+        dp: [1,1,0,0,0,0],
+        active: [0,1],
+        metric: 'dp[0]=1 · dp[1]=1',
+        codeLine: 2,
+      },
+      {
+        title: 'Build step 2',
+        explanation: 'To reach step 2, come from step 1 or step 0: 1 + 1 = 2.',
+        values: [0,1,2,3,4,5],
+        dp: [1,1,2,0,0,0],
+        active: [0,1,2],
+        metric: 'dp[2] = 2',
+        codeLine: 4,
+      },
+      {
+        title: 'Build step 3',
+        explanation: 'Reuse the two previous answers: dp[3] = dp[2] + dp[1] = 3.',
+        values: [0,1,2,3,4,5],
+        dp: [1,1,2,3,0,0],
+        active: [1,2,3],
+        metric: '2 + 1 = 3',
+        codeLine: 4,
+      },
+      {
+        title: 'Continue left to right',
+        explanation: 'Every dependency is already solved before the current state is computed.',
+        values: [0,1,2,3,4,5],
+        dp: [1,1,2,3,5,8],
+        active: [3,4,5],
+        metric: 'ANSWER = 8',
+        codeLine: 6,
+      },
+    ],
+    code: [
+      'function climbStairs(n) {',
+      '  const dp = Array(n + 1).fill(0);',
+      '  dp[0] = 1; dp[1] = 1;',
+      '  for (let i = 2; i <= n; i++) {',
+      '    dp[i] = dp[i - 1] + dp[i - 2];',
+      '  }',
+      '  return dp[n];',
+      '}',
+    ],
+    quiz: {
+      question: 'A recursive solution repeatedly solves the same states and asks for the minimum cost. What optimization pattern should you look for?',
+      options: ['Merge Intervals', 'Dynamic Programming', 'Fast & Slow', 'Two Pointers'],
+      correct: 1,
+      explanation: 'Repeated states plus an answer built from smaller state answers are the central signals for DP.',
+    },
+  }
 ];
 
 const storageKey = 'dsa-tutor-progress-v1';
@@ -555,8 +1288,8 @@ function Learn(props: { completed: PatternId[]; openLesson: (id: PatternId) => v
         ))}
       </div>
       <div className="coming-grid">
-        {['Prefix Sum', 'Fast & Slow', 'Monotonic Stack', 'Merge Intervals', 'BFS / DFS', 'Heap / Top-K', 'Backtracking', 'Dynamic Programming'].map((name, index) => (
-          <div className="coming-card" key={name}><span>{String(index + 4).padStart(2, '0')}</span><strong>{name}</strong><small>COMING NEXT</small></div>
+        {['Trie', 'Union Find', 'Topological Sort', 'Greedy', 'Bit Manipulation', 'Binary Search on Answer', '2D DP', 'Dijkstra'].map((name, index) => (
+          <div className="coming-card" key={name}><span>{String(index + 12).padStart(2, '0')}</span><strong>{name}</strong><small>NEXT TRACK</small></div>
         ))}
       </div>
     </div>
@@ -608,8 +1341,23 @@ function MiniVisual({ id }: { id: PatternId }) {
   if (id === 'sliding-window') {
     return <div className="mini-visual"><i /><i className="hot" /><i className="hot" /><i className="hot" /><i /></div>;
   }
-  if (id === 'two-pointers') {
+  if (id === 'two-pointers' || id === 'fast-slow') {
     return <div className="mini-visual pointers"><b>L</b><i /><i /><i /><i /><i /><b>R</b></div>;
+  }
+  if (id === 'prefix-sum' || id === 'dynamic-programming') {
+    return <div className="mini-visual steps"><i /><i className="hot" /><i className="hot tall" /><i className="found taller" /><i /></div>;
+  }
+  if (id === 'monotonic-stack' || id === 'heap-top-k') {
+    return <div className="mini-visual stack-mini"><i /><i className="hot" /><i className="found" /></div>;
+  }
+  if (id === 'merge-intervals') {
+    return <div className="mini-visual intervals-mini"><i /><i className="hot" /><i /></div>;
+  }
+  if (id === 'graph-traversal') {
+    return <div className="mini-visual graph-mini"><i /><i className="hot" /><i /><i className="found" /><i /></div>;
+  }
+  if (id === 'backtracking') {
+    return <div className="mini-visual branch-mini"><i /><i /><i className="hot" /><i /><i /></div>;
   }
   return <div className="mini-visual binary"><i className="dim" /><i className="dim" /><i /><i className="found" /><i /></div>;
 }
@@ -800,35 +1548,59 @@ function LessonCard(props: { number: string; eyebrow: string; title: string; chi
 }
 
 function Visualizer({ pattern, frame }: { pattern: Pattern; frame: Frame }) {
+  if (pattern.id === 'prefix-sum') return <PrefixVisualizer pattern={pattern} frame={frame} />;
+  if (pattern.id === 'fast-slow') return <FastSlowVisualizer pattern={pattern} frame={frame} />;
+  if (pattern.id === 'monotonic-stack') return <StackVisualizer pattern={pattern} frame={frame} />;
+  if (pattern.id === 'merge-intervals') return <IntervalVisualizer pattern={pattern} frame={frame} />;
+  if (pattern.id === 'graph-traversal') return <GraphVisualizer pattern={pattern} frame={frame} />;
+  if (pattern.id === 'heap-top-k') return <HeapVisualizer pattern={pattern} frame={frame} />;
+  if (pattern.id === 'backtracking') return <BacktrackingVisualizer pattern={pattern} frame={frame} />;
+  if (pattern.id === 'dynamic-programming') return <DPVisualizer pattern={pattern} frame={frame} />;
+  return <ArrayVisualizer pattern={pattern} frame={frame} />;
+}
+
+function VisualShell({ pattern, frame, children }: { pattern: Pattern; frame: Frame; children: React.ReactNode }) {
   return (
     <div className="visual-stage">
       <div className="visual-topline">
-        <span>{pattern.id.replace('-', ' ').toUpperCase()}</span>
+        <span>{pattern.title.toUpperCase()}</span>
         <strong>{frame.metric}</strong>
       </div>
+      {children}
+    </div>
+  );
+}
 
-      <div className="array-row">
-        {frame.values.map((value, index) => {
-          const active = frame.active?.includes(index);
-          const dimmed = frame.dimmed?.includes(index);
-          const outgoing = frame.outgoing === index;
-          const incoming = frame.incoming === index;
-          return (
-            <div className="cell-wrap" key={index}>
-              <div className="pointer-slot">
-                {frame.left === index && <span className="pointer cyan">LEFT</span>}
-                {frame.mid === index && <span className="pointer orange">MID</span>}
-                {frame.right === index && <span className="pointer green">RIGHT</span>}
-              </div>
-              <div className={'array-cell ' + (active ? 'active ' : '') + (dimmed ? 'dimmed ' : '') + (outgoing ? 'outgoing ' : '') + (incoming ? 'incoming' : '')}>
-                {value}
-              </div>
-              <span className="index-label">{index}</span>
+function ArrayCells({ frame }: { frame: Frame }) {
+  return (
+    <div className="array-row">
+      {frame.values.map((value, index) => {
+        const active = frame.active?.includes(index);
+        const dimmed = frame.dimmed?.includes(index);
+        const outgoing = frame.outgoing === index;
+        const incoming = frame.incoming === index;
+        return (
+          <div className="cell-wrap" key={index}>
+            <div className="pointer-slot">
+              {frame.left === index && <span className="pointer cyan">LEFT</span>}
+              {frame.mid === index && <span className="pointer orange">MID</span>}
+              {frame.right === index && <span className="pointer green">RIGHT</span>}
             </div>
-          );
-        })}
-      </div>
+            <div className={'array-cell ' + (active ? 'active ' : '') + (dimmed ? 'dimmed ' : '') + (outgoing ? 'outgoing ' : '') + (incoming ? 'incoming' : '')}>
+              {value}
+            </div>
+            <span className="index-label">{index}</span>
+          </div>
+        );
+      })}
+    </div>
+  );
+}
 
+function ArrayVisualizer({ pattern, frame }: { pattern: Pattern; frame: Frame }) {
+  return (
+    <VisualShell pattern={pattern} frame={frame}>
+      <ArrayCells frame={frame} />
       {frame.windowStart !== undefined && frame.windowEnd !== undefined && (
         <div className="window-readout">
           <span>WINDOW</span>
@@ -837,7 +1609,167 @@ function Visualizer({ pattern, frame }: { pattern: Pattern; frame: Frame }) {
           {frame.incoming !== undefined && <em className="in">+ {frame.values[frame.incoming]}</em>}
         </div>
       )}
-    </div>
+    </VisualShell>
+  );
+}
+
+function PrefixVisualizer({ pattern, frame }: { pattern: Pattern; frame: Frame }) {
+  return (
+    <VisualShell pattern={pattern} frame={frame}>
+      <div className="visual-caption">ORIGINAL</div>
+      <ArrayCells frame={frame} />
+      <div className="prefix-arrow">↓ cumulative totals</div>
+      <div className="prefix-row">
+        {(frame.prefix || []).map((value, index) => (
+          <div className="prefix-cell" key={index}><strong>{value}</strong><small>p[{index}]</small></div>
+        ))}
+      </div>
+    </VisualShell>
+  );
+}
+
+function FastSlowVisualizer({ pattern, frame }: { pattern: Pattern; frame: Frame }) {
+  return (
+    <VisualShell pattern={pattern} frame={frame}>
+      <div className="linked-row">
+        {frame.values.map((value, index) => (
+          <div className="linked-wrap" key={index}>
+            <div className="runner-labels">
+              {frame.slow === index && <span className="runner slow">SLOW</span>}
+              {frame.fast === index && <span className="runner fast">FAST</span>}
+            </div>
+            <div className={'linked-node ' + (frame.slow === index || frame.fast === index ? 'active' : '')}>{value}</div>
+            {index < frame.values.length - 1 && <span className="link-arrow">→</span>}
+          </div>
+        ))}
+      </div>
+      <div className="cycle-return">node 6 <span>↺</span> node 3</div>
+    </VisualShell>
+  );
+}
+
+function StackVisualizer({ pattern, frame }: { pattern: Pattern; frame: Frame }) {
+  return (
+    <VisualShell pattern={pattern} frame={frame}>
+      <div className="split-visual">
+        <div>
+          <div className="visual-caption">INPUT</div>
+          <ArrayCells frame={frame} />
+        </div>
+        <div className="stack-panel">
+          <div className="visual-caption">MONOTONIC STACK</div>
+          <div className="stack-column">
+            {(frame.stack || []).slice().reverse().map((value, index) => (
+              <div className={'stack-value ' + (index === 0 ? 'top' : '')} key={index}>{value}</div>
+            ))}
+          </div>
+          <small>TOP ↑</small>
+        </div>
+      </div>
+    </VisualShell>
+  );
+}
+
+function IntervalVisualizer({ pattern, frame }: { pattern: Pattern; frame: Frame }) {
+  const max = 18;
+  return (
+    <VisualShell pattern={pattern} frame={frame}>
+      <div className="interval-board">
+        <div className="visual-caption">SORTED INPUT</div>
+        {(frame.intervals || []).map(([start, end], index) => (
+          <div className="interval-track" key={index}>
+            <span>{start}</span>
+            <div
+              className={'interval-bar ' + (frame.active?.includes(index) ? 'active' : '')}
+              style={{ left: ((start - 1) / max) * 100 + '%', width: ((end - start + 1) / max) * 100 + '%' }}
+            >[{start},{end}]</div>
+          </div>
+        ))}
+        <div className="visual-caption merged-caption">MERGED OUTPUT</div>
+        <div className="merged-row">
+          {(frame.merged || []).map(([start, end]) => <span key={start + '-' + end}>[{start},{end}]</span>)}
+        </div>
+      </div>
+    </VisualShell>
+  );
+}
+
+const graphPositions = [
+  [50, 10], [22, 38], [78, 38], [12, 76], [52, 76], [86, 86]
+];
+
+function GraphVisualizer({ pattern, frame }: { pattern: Pattern; frame: Frame }) {
+  return (
+    <VisualShell pattern={pattern} frame={frame}>
+      <div className="graph-board">
+        <svg viewBox="0 0 100 100" preserveAspectRatio="none">
+          {(frame.edges || []).map(([a,b], index) => (
+            <line key={index} x1={graphPositions[a][0]} y1={graphPositions[a][1]} x2={graphPositions[b][0]} y2={graphPositions[b][1]} />
+          ))}
+        </svg>
+        {frame.values.map((value) => {
+          const [x,y] = graphPositions[value];
+          const active = frame.active?.includes(value);
+          const visited = frame.visited?.includes(value);
+          return <div key={value} className={'graph-node ' + (visited ? 'visited ' : '') + (active ? 'active' : '')} style={{ left: x + '%', top: y + '%' }}>{String.fromCharCode(65 + value)}</div>;
+        })}
+      </div>
+      <div className="queue-strip"><span>QUEUE</span>{(frame.queue || []).map((value) => <b key={value}>{String.fromCharCode(65 + value)}</b>)}</div>
+    </VisualShell>
+  );
+}
+
+function HeapVisualizer({ pattern, frame }: { pattern: Pattern; frame: Frame }) {
+  const heap = frame.stack || [];
+  return (
+    <VisualShell pattern={pattern} frame={frame}>
+      <div className="heap-layout">
+        <div>
+          <div className="visual-caption">INCOMING SCORES</div>
+          <ArrayCells frame={frame} />
+        </div>
+        <div className="heap-tree">
+          {heap.map((value, index) => <div key={index} className={'heap-node heap-' + index}>{value}</div>)}
+        </div>
+      </div>
+      <div className="heap-note">MIN-HEAP OF SIZE K · ROOT = CURRENT BOUNDARY</div>
+    </VisualShell>
+  );
+}
+
+function BacktrackingVisualizer({ pattern, frame }: { pattern: Pattern; frame: Frame }) {
+  return (
+    <VisualShell pattern={pattern} frame={frame}>
+      <div className="choice-row">
+        {frame.values.map((value, index) => <div key={value} className={'choice-chip ' + (frame.active?.includes(index) ? 'active' : '')}>{value}</div>)}
+      </div>
+      <div className="decision-arrow">CHOOSE → EXPLORE → UNDO</div>
+      <div className="path-row">
+        <span>PATH</span>
+        {(frame.path || []).map((value, index) => <b key={index}>{value}</b>)}
+        <i className="path-cursor" />
+      </div>
+      <div className="branch-tree">
+        <span>1</span><span>2</span><span>3</span>
+        <div className="branch-line" />
+      </div>
+    </VisualShell>
+  );
+}
+
+function DPVisualizer({ pattern, frame }: { pattern: Pattern; frame: Frame }) {
+  return (
+    <VisualShell pattern={pattern} frame={frame}>
+      <div className="visual-caption">STATE TABLE</div>
+      <div className="dp-row">
+        {(frame.dp || []).map((value, index) => (
+          <div className={'dp-cell ' + (frame.active?.includes(index) ? 'active' : '')} key={index}>
+            <small>dp[{index}]</small><strong>{value}</strong>
+          </div>
+        ))}
+      </div>
+      <div className="dp-transition">dp[i] = dp[i − 1] + dp[i − 2]</div>
+    </VisualShell>
   );
 }
 
