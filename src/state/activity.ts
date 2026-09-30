@@ -1,6 +1,6 @@
 import type { PatternId } from '../types/lesson';
 
-export type ActivityKind = 'lesson_complete' | 'recognition_answer' | 'coding_attempt';
+export type ActivityKind = 'lesson_complete' | 'recognition_answer' | 'prediction_answer' | 'coding_attempt' | 'interview_attempt';
 
 export type LearningActivity = {
   id: string;
