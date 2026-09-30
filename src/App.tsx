@@ -77,6 +77,7 @@ function App() {
             <NavButton active={page === 'home'} icon={homeOutline} label="Home" onClick={() => navigate('home')} />
             <NavButton active={page === 'learn' || page === 'lesson'} icon={schoolOutline} label="Learn" onClick={() => navigate('learn')} />
             <NavButton active={page === 'practice'} icon={flashOutline} label="Practice" onClick={() => navigate('practice')} />
+            <NavButton active={page === 'code'} icon={codeSlashOutline} label="Code" onClick={() => navigate('code')} />
             <NavButton active={page === 'progress'} icon={barChartOutline} label="Progress" onClick={() => navigate('progress')} />
           </div>
         </div>
