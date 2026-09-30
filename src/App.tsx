@@ -4,16 +4,17 @@ import { barChartOutline, flashOutline, homeOutline, schoolOutline } from 'ionic
 
 import { patterns } from './data/patterns';
 import { loadProgress, saveProgress } from './state/progress';
-import type { Page, PatternId } from './types/lesson';
+import type { PatternId } from './types/lesson';
 import { NavButton } from './components/NavButton';
 import { Home, Learn, Progress } from './pages/DashboardPages';
 import { Lesson } from './pages/Lesson';
 import { Practice } from './pages/Practice';
+import { useHashNavigation } from './hooks/useHashNavigation';
 
 function App() {
-  const [page, setPage] = useState<Page>('home');
-  const [selectedId, setSelectedId] = useState<PatternId>('sliding-window');
+  const { page, patternId, navigate } = useHashNavigation();
   const [completed, setCompleted] = useState<PatternId[]>(loadProgress);
+  const selectedId = patternId ?? 'sliding-window';
 
   const selected = useMemo(
     () => patterns.find((pattern) => pattern.id === selectedId) || patterns[0],
@@ -21,8 +22,7 @@ function App() {
   );
 
   const openLesson = (id: PatternId) => {
-    setSelectedId(id);
-    setPage('lesson');
+    navigate('lesson', id);
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
@@ -37,16 +37,16 @@ function App() {
       <IonContent fullscreen className="app-content">
         <div className="app-shell">
           <aside className="side-rail">
-            <button className="brand" onClick={() => setPage('home')}>
+            <button className="brand" onClick={() => navigate('home')}>
               <span className="brand-mark">&lt;/&gt;</span>
               <span><strong>DSA TUTOR</strong><small>PATTERN LAB</small></span>
             </button>
 
             <nav>
-              <NavButton active={page === 'home'} icon={homeOutline} label="Home" onClick={() => setPage('home')} />
-              <NavButton active={page === 'learn' || page === 'lesson'} icon={schoolOutline} label="Learn" onClick={() => setPage('learn')} />
-              <NavButton active={page === 'practice'} icon={flashOutline} label="Practice" onClick={() => setPage('practice')} />
-              <NavButton active={page === 'progress'} icon={barChartOutline} label="Progress" onClick={() => setPage('progress')} />
+              <NavButton active={page === 'home'} icon={homeOutline} label="Home" onClick={() => navigate('home')} />
+              <NavButton active={page === 'learn' || page === 'lesson'} icon={schoolOutline} label="Learn" onClick={() => navigate('learn')} />
+              <NavButton active={page === 'practice'} icon={flashOutline} label="Practice" onClick={() => navigate('practice')} />
+              <NavButton active={page === 'progress'} icon={barChartOutline} label="Progress" onClick={() => navigate('progress')} />
             </nav>
 
             <div className="rail-note">
@@ -56,7 +56,7 @@ function App() {
           </aside>
 
           <main className="main-stage">
-            {page === 'home' && <Home completed={completed} openLesson={openLesson} goLearn={() => setPage('learn')} />}
+            {page === 'home' && <Home completed={completed} openLesson={openLesson} goLearn={() => navigate('learn')} />}
             {page === 'learn' && <Learn completed={completed} openLesson={openLesson} />}
             {page === 'practice' && <Practice openLesson={openLesson} />}
             {page === 'progress' && <Progress completed={completed} openLesson={openLesson} />}
@@ -64,17 +64,17 @@ function App() {
               <Lesson
                 pattern={selected}
                 isComplete={completed.includes(selected.id)}
-                onBack={() => setPage('learn')}
+                onBack={() => navigate('learn')}
                 onComplete={() => markComplete(selected.id)}
               />
             )}
           </main>
 
           <div className="bottom-nav">
-            <NavButton active={page === 'home'} icon={homeOutline} label="Home" onClick={() => setPage('home')} />
-            <NavButton active={page === 'learn' || page === 'lesson'} icon={schoolOutline} label="Learn" onClick={() => setPage('learn')} />
-            <NavButton active={page === 'practice'} icon={flashOutline} label="Practice" onClick={() => setPage('practice')} />
-            <NavButton active={page === 'progress'} icon={barChartOutline} label="Progress" onClick={() => setPage('progress')} />
+            <NavButton active={page === 'home'} icon={homeOutline} label="Home" onClick={() => navigate('home')} />
+            <NavButton active={page === 'learn' || page === 'lesson'} icon={schoolOutline} label="Learn" onClick={() => navigate('learn')} />
+            <NavButton active={page === 'practice'} icon={flashOutline} label="Practice" onClick={() => navigate('practice')} />
+            <NavButton active={page === 'progress'} icon={barChartOutline} label="Progress" onClick={() => navigate('progress')} />
           </div>
         </div>
       </IonContent>
