@@ -80,14 +80,15 @@ export function runCodeProblem(
 ): Promise<CodeRunSummary> {
   return new Promise((resolve) => {
     const blob = new Blob([workerSource], { type: 'text/javascript' });
-    const worker = new Worker(URL.createObjectURL(blob));
+    const workerUrl = URL.createObjectURL(blob);
+    const worker = new Worker(workerUrl);
     let settled = false;
 
     const finish = (summary: CodeRunSummary) => {
       if (settled) return;
       settled = true;
       worker.terminate();
-      URL.revokeObjectURL(blob);
+      URL.revokeObjectURL(workerUrl);
       resolve(summary);
     };
 
