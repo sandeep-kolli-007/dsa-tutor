@@ -15,6 +15,7 @@ import type { Frame, Pattern } from '../types/lesson';
 import { Visualizer } from '../components/visualizers/Visualizer';
 import { ExplorePanel } from '../components/ExplorePanel';
 import { MistakeLab } from '../components/MistakeLab';
+import { PredictionMode } from '../components/PredictionMode';
 import { mistakes } from '../data/mistakes';
 import { codeProblemsByPattern } from '../data/codeProblems';
 
@@ -54,8 +55,9 @@ export function Lesson(props: { pattern: Pattern; isComplete: boolean; onBack: (
   const quizCorrect = choice === pattern.quiz.correct;
   const codingProblem = codeProblemsByPattern.get(pattern.id);
   const hasMistakes = Boolean(mistakes[pattern.id]?.length);
-  const recognitionStep = hasMistakes ? '06' : '05';
-  const quizStep = hasMistakes ? '07' : '06';
+  const mistakeStep = '06';
+  const recognitionStep = hasMistakes ? '07' : '06';
+  const quizStep = hasMistakes ? '08' : '07';
 
   return (
     <div className="lesson-page">
