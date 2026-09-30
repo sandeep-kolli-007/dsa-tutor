@@ -1998,3 +1998,11 @@ blockquote { margin: 22px 0 10px; padding: 18px 20px; border-left: 3px solid var
   .practice-actions { display: grid; }
   .practice-actions > * { width: 100%; justify-content: center; }
 }
+
+
+.recognition-stat {
+  color: var(--cyan);
+  font: 750 7px ui-monospace, monospace;
+  font-style: normal;
+  letter-spacing: .05em;
+}
