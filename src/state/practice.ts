@@ -1,8 +1,12 @@
 import type { PatternId } from '../types/lesson';
+import { reviewDelayMs } from '../engine/reviewScheduler';
 
 export type PatternPracticeStats = {
   answered: number;
   correct: number;
+  streak?: number;
+  lastAnsweredAt?: number;
+  nextReviewAt?: number;
 };
 
 export type PracticeStats = {
@@ -33,9 +37,10 @@ export function loadPracticeStats(): PracticeStats {
   }
 }
 
-export function recordPracticeAnswer(patternId: PatternId, isCorrect: boolean): PracticeStats {
+export function recordPracticeAnswer(patternId: PatternId, isCorrect: boolean, now = Date.now()): PracticeStats {
   const current = loadPracticeStats();
   const pattern = current.byPattern[patternId] ?? { answered: 0, correct: 0 };
+  const streak = isCorrect ? (pattern.streak ?? 0) + 1 : 0;
 
   const next: PracticeStats = {
     answered: current.answered + 1,
@@ -45,6 +50,9 @@ export function recordPracticeAnswer(patternId: PatternId, isCorrect: boolean): 
       [patternId]: {
         answered: pattern.answered + 1,
         correct: pattern.correct + (isCorrect ? 1 : 0),
+        streak,
+        lastAnsweredAt: now,
+        nextReviewAt: now + reviewDelayMs(isCorrect, streak),
       },
     },
   };

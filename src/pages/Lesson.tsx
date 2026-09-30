@@ -16,8 +16,9 @@ import { Visualizer } from '../components/visualizers/Visualizer';
 import { ExplorePanel } from '../components/ExplorePanel';
 import { MistakeLab } from '../components/MistakeLab';
 import { mistakes } from '../data/mistakes';
+import { codeProblemsByPattern } from '../data/codeProblems';
 
-export function Lesson(props: { pattern: Pattern; isComplete: boolean; onBack: () => void; onComplete: () => void }) {
+export function Lesson(props: { pattern: Pattern; isComplete: boolean; onBack: () => void; onComplete: () => void; openCode: (problemId: string) => void }) {
   const { pattern } = props;
   const [index, setIndex] = useState(0);
   const [playing, setPlaying] = useState(false);
@@ -51,6 +52,7 @@ export function Lesson(props: { pattern: Pattern; isComplete: boolean; onBack: (
 
   const frame = frames[Math.min(index, frames.length - 1)];
   const quizCorrect = choice === pattern.quiz.correct;
+  const codingProblem = codeProblemsByPattern.get(pattern.id);
   const hasMistakes = Boolean(mistakes[pattern.id]?.length);
   const recognitionStep = hasMistakes ? '06' : '05';
   const quizStep = hasMistakes ? '07' : '06';
@@ -187,9 +189,16 @@ export function Lesson(props: { pattern: Pattern; isComplete: boolean; onBack: (
 
           <section className="finish-card">
             <div><span className="eyebrow">FINISH THE LOOP</span><h2>{props.isComplete ? 'Pattern marked complete.' : 'Can you explain the invariant out loud?'}</h2><p>The next goal is recognizing this pattern in a problem you have never seen.</p></div>
-            <button className={'primary-button ' + (props.isComplete ? 'done' : '')} onClick={props.onComplete}>
-              <IonIcon icon={checkmarkCircleOutline} /> {props.isComplete ? 'COMPLETED' : 'MARK COMPLETE'}
-            </button>
+            <div className="finish-actions">
+              {codingProblem && (
+                <button className="secondary-action" onClick={() => props.openCode(codingProblem.id)}>
+                  CODE THIS PATTERN →
+                </button>
+              )}
+              <button className={'primary-button ' + (props.isComplete ? 'done' : '')} onClick={props.onComplete}>
+                <IonIcon icon={checkmarkCircleOutline} /> {props.isComplete ? 'COMPLETED' : 'MARK COMPLETE'}
+              </button>
+            </div>
           </section>
         </div>
 

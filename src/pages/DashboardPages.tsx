@@ -5,12 +5,30 @@ import { arrowForwardOutline, chevronForwardOutline, flashOutline, sparklesOutli
 
 import { patterns } from '../data/patterns';
 import { loadPracticeStats } from '../state/practice';
+import { loadCodingStats } from '../state/coding';
+import { codeProblemsByPattern } from '../data/codeProblems';
 import type { PatternId } from '../types/lesson';
 import { PatternCard } from '../components/PatternCard';
+import { calculateMastery } from '../engine/mastery';
 
 export function Home(props: { completed: PatternId[]; openLesson: (id: PatternId) => void; goLearn: () => void }) {
-  const pct = Math.round((props.completed.length / patterns.length) * 100);
-  const nextPattern = patterns.find((pattern) => !props.completed.includes(pattern.id)) ?? patterns[0];
+  const practice = useMemo(() => loadPracticeStats(), []);
+  const coding = useMemo(() => loadCodingStats(), []);
+  const mastery = patterns.map((pattern) => {
+    const codingProblem = codeProblemsByPattern.get(pattern.id);
+    return {
+      pattern,
+      result: calculateMastery({
+        lessonComplete: props.completed.includes(pattern.id),
+        recognition: practice.byPattern[pattern.id],
+        hasCodingProblem: Boolean(codingProblem),
+        implementationSolved: codingProblem ? Boolean(coding.byProblem[codingProblem.id]?.solved) : false,
+      }),
+    };
+  });
+  const pct = Math.round(mastery.reduce((sum, item) => sum + item.result.score, 0) / patterns.length);
+  const masteredCount = mastery.filter((item) => item.result.label === 'MASTERED').length;
+  const nextPattern = mastery.find((item) => item.result.label !== 'MASTERED')?.pattern ?? patterns[0];
 
   return (
     <div className="page">
@@ -41,8 +59,8 @@ export function Home(props: { completed: PatternId[]; openLesson: (id: PatternId
           </div>
           <div>
             <span className="micro-label">PATTERN MASTERY</span>
-            <h3>{props.completed.length} / {patterns.length} foundations</h3>
-            <p>Completion is a checkpoint. Recognition on an unseen problem is the real goal.</p>
+            <h3>{masteredCount} / {patterns.length} patterns mastered</h3>
+            <p>Score combines lesson understanding, repeated recognition and implementation evidence where a coding challenge exists.</p>
           </div>
         </article>
       </section>
@@ -168,6 +186,7 @@ export function Learn(props: { completed: PatternId[]; openLesson: (id: PatternI
 
 export function Progress(props: { completed: PatternId[]; openLesson: (id: PatternId) => void }) {
   const practice = useMemo(() => loadPracticeStats(), []);
+  const coding = useMemo(() => loadCodingStats(), []);
 
   return (
     <div className="page">
@@ -183,15 +202,32 @@ export function Progress(props: { completed: PatternId[]; openLesson: (id: Patte
           const recognitionPct = recognition?.answered
             ? Math.round((recognition.correct / recognition.answered) * 100)
             : null;
+          const codingProblem = codeProblemsByPattern.get(pattern.id);
+          const implementationSolved = codingProblem
+            ? Boolean(coding.byProblem[codingProblem.id]?.solved)
+            : null;
+          const mastery = calculateMastery({
+            lessonComplete: done,
+            recognition,
+            hasCodingProblem: Boolean(codingProblem),
+            implementationSolved: Boolean(implementationSolved),
+          });
           return (
             <button className="progress-row" key={pattern.id} onClick={() => props.openLesson(pattern.id)}>
               <span className={'status-dot ' + (done ? 'done' : '')} />
               <div>
                 <strong>{pattern.title}</strong>
                 <small>{pattern.invariant}</small>
-                {recognitionPct !== null && <em className="recognition-stat">Recognition {recognitionPct}% · {recognition?.answered} attempts</em>}
+                <div className="mastery-evidence">
+                  <em className="mastery-score-stat">Mastery {mastery.score}%</em>
+                  {recognitionPct !== null && <em className="recognition-stat">Recognition {recognitionPct}% · {recognition?.answered} attempts</em>}
+                  {implementationSolved !== null && <em className={'implementation-stat ' + (implementationSolved ? 'done' : '')}>Implementation {implementationSolved ? 'solved ✓' : 'pending'}</em>}
+                </div>
               </div>
-              <span className={'mastery-tag ' + (done ? 'done' : '')}>{done ? 'LESSON DONE' : 'LEARNING'}</span>
+              <div className="mastery-meter" aria-label={`${mastery.score}% mastery`}>
+                <i style={{ width: mastery.score + '%' }} />
+              </div>
+              <span className={'mastery-tag ' + (mastery.label === 'MASTERED' ? 'done' : '')}>{mastery.label}</span>
               <IonIcon icon={chevronForwardOutline} />
             </button>
           );
