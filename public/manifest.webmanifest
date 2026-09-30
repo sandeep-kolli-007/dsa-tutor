@@ -2,14 +2,14 @@
   "name": "DSA Tutor — Pattern Lab",
   "short_name": "DSA Tutor",
   "description": "Visual-first DSA pattern learning, recognition and coding practice.",
-  "start_url": "/#/",
-  "scope": "/",
+  "start_url": "./#/",
+  "scope": "./",
   "display": "standalone",
   "background_color": "#080d12",
   "theme_color": "#080d12",
   "icons": [
     {
-      "src": "/dsa-tutor-icon.svg",
+      "src": "./dsa-tutor-icon.svg",
       "sizes": "any",
       "type": "image/svg+xml",
       "purpose": "any maskable"
