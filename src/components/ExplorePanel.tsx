@@ -13,8 +13,8 @@ export function ExplorePanel(props: {
   patternId: PatternId;
   onFrames: (frames: Frame[] | null) => void;
 }) {
-  const supported = supportsExplore(props.patternId);
-  const initial = supported ? defaults[props.patternId] : null;
+  const supportedId = supportsExplore(props.patternId) ? props.patternId : null;
+  const initial = supportedId ? defaults[supportedId] : null;
   const [arrayText, setArrayText] = useState(initial?.array ?? '');
   const [parameterText, setParameterText] = useState(initial?.parameter ?? '');
   const [error, setError] = useState<string | null>(null);
@@ -22,7 +22,8 @@ export function ExplorePanel(props: {
 
   useEffect(() => {
     if (!supportsExplore(props.patternId)) return;
-    const next = defaults[props.patternId];
+    const id = props.patternId;
+    const next = defaults[id];
     setArrayText(next.array);
     setParameterText(next.parameter);
     setError(null);
@@ -35,12 +36,12 @@ export function ExplorePanel(props: {
     return 'TARGET';
   }, [props.patternId]);
 
-  if (!supported) return null;
+  if (!supportedId) return null;
 
   const run = () => {
     const nums = arrayText
       .split(',')
-      .map((part) => part.trim())
+      .map((part: string) => part.trim())
       .filter(Boolean)
       .map(Number);
     const parameter = Number(parameterText);
@@ -49,7 +50,7 @@ export function ExplorePanel(props: {
       return;
     }
 
-    const result = buildExploreFrames(props.patternId, nums, parameter);
+    const result = buildExploreFrames(supportedId, nums, parameter);
     if (!result.frames) {
       setError(result.error ?? 'Could not generate frames.');
       return;
@@ -61,7 +62,7 @@ export function ExplorePanel(props: {
   };
 
   const reset = () => {
-    const next = defaults[props.patternId];
+    const next = defaults[supportedId];
     setArrayText(next.array);
     setParameterText(next.parameter);
     setError(null);
