@@ -4,7 +4,8 @@ on:
   pull_request:
   push:
     branches:
-      - feat/visual-pattern-tutor-mvp
+      - main
+      - 'feat/**'
 
 jobs:
   build:
@@ -20,6 +21,9 @@ jobs:
 
       - name: Install dependencies
         run: npm install
+
+      - name: Unit tests
+        run: npm test
 
       - name: Build
         run: npm run build
