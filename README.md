@@ -20,7 +20,15 @@ The goal is to help a learner see an unseen problem and recognize the underlying
 - Real-life-to-DSA mapping
 - Pattern invariants and recognition signals
 - Recognition quizzes
+- Adaptive spaced recognition reviews
+- Evidence-based mastery scoring
+- Custom-input Explore mode for foundational patterns
+- Mistake labs for common invariant failures
+- Searchable/filterable 65-pattern library
+- Browser-based JavaScript implementation lab with timeout-protected test execution
+- Coding hints, hidden tests, reference solutions, local drafts and solved-state persistence
 - Local progress persistence
+- Shareable lesson and coding-problem deep links
 - Mobile bottom navigation and desktop side rail
 
 ### Interactive lessons
@@ -52,6 +60,31 @@ The goal is to help a learner see an unseen problem and recognize the underlying
 25. Fenwick Tree — compact prefix-sum buckets
 26. Bellman-Ford — discounted routes with negative edges
 27. Floyd-Warshall — all-pairs routing through transfer hubs
+
+## Coding practice
+
+The current implementation bank includes JavaScript challenges for:
+
+- Sliding Window
+- Two Pointers
+- Binary Search
+- Prefix Sum
+- Monotonic Stack
+- Merge Intervals
+- BFS shortest path
+- Dynamic Programming
+- Kadane
+- Difference Array
+- Quickselect
+- Coin Change
+
+User code executes inside a dedicated Web Worker with a time limit, so infinite loops can be terminated without freezing the UI.
+
+Mastery is no longer just lesson completion. The app combines:
+
+**lesson understanding + repeated recognition evidence + implementation evidence**
+
+Patterns without a coding challenge are normalized against the evidence currently available.
 
 ## Run
 
@@ -105,4 +138,4 @@ The later additions include:
 
 ## CI
 
-Every pull request runs an automated Node 22 production build to catch TypeScript or Vite regressions.
+Every pull request runs the Vitest suite and then a Node 22 TypeScript/Vite production build. Tests currently cover frame generation, navigation/deep links, mastery scoring, review scheduling, coding problem definitions, and reference solutions.
