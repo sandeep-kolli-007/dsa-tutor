@@ -72,7 +72,7 @@ export function CodePractice(props: {
     setRunning(false);
 
     const solved = summary.passed === summary.total;
-    setStats(recordCodingAttempt(selected.id, solved));
+    setStats(recordCodingAttempt(selected.id, solved, selected.patternId));
   };
 
   const solved = Boolean(stats.byProblem[selected.id]?.solved);
