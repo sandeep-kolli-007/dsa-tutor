@@ -1,6 +1,10 @@
 name: Render DSA Remotion Video
 
 on:
+  push:
+    paths:
+      - 'remotion-engine/**'
+      - '.github/workflows/render-dsa-remotion.yml'
   workflow_dispatch:
     inputs:
       composition:
