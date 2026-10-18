@@ -1,0 +1,19 @@
+{
+  "name": "striver-a2z-remotion-engine",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "dev": "remotion studio src/index.ts",
+    "render:sample": "remotion render src/index.ts DsaExplainer out/dsa-explainer.mp4"
+  },
+  "dependencies": {
+    "@remotion/cli": "^4.0.300",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
+    "remotion": "^4.0.300"
+  },
+  "devDependencies": {
+    "@types/react": "^18.3.12",
+    "typescript": "^5.7.2"
+  }
+}
