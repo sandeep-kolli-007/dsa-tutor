@@ -40,8 +40,12 @@ export function RadialRoadmap({ onContinue }: { onContinue: () => void }) {
   const polar = (cx: number, cy: number, r: number, a: number) => ({ x: cx + Math.cos(a) * r, y: cy + Math.sin(a) * r });
   const radialNodes = modules.map((m, i) => {
     const angle = -Math.PI / 2 + (i / modules.length) * Math.PI * 2;
-    const end = polar(250, 250, 160, angle);
-    const nodes = m.topics.slice(0, 5).map((t, j) => ({ ...polar(250, 250, 35 + j * 24, angle + (j - 2) * 0.07), topic: t, r: j === 0 ? 5 : 4 }));
+    const end = polar(250, 250, 190, angle);
+    const nodes = m.topics.slice(0, 8).map((t, j, arr) => {
+      const spread = Math.min(0.13, 0.42 / Math.max(arr.length, 1));
+      const radius = 42 + j * (145 / Math.max(arr.length - 1, 1));
+      return { ...polar(250, 250, radius, angle + (j - (arr.length - 1) / 2) * spread), topic: t, r: j === 0 ? 5 : 4 };
+    });
     return { module: m, angle, end, nodes };
   });
   const visibleTopics = (selectedModule?.topics ?? []).filter(t => t.name.toLowerCase().includes(query.toLowerCase()));
