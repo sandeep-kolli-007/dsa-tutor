@@ -1,9 +1,9 @@
 import { useMemo, useState } from 'react';
 
-type Topic = { name: string; status: 'done' | 'current' | 'available' | 'locked'; difficulty?: string; pattern?: string };
-type Module = { name: string; short: string; color: string; topics: Topic[] };
-
 import { roadmapModules as modules, roadmapTopicCount } from '../data/a2z-roadmap';
+
+type Topic = { id: string; name: string; topic: string; url: string; status: 'done' | 'current' | 'available' | 'locked'; difficulty?: string; pattern?: string };
+type Module = { name: string; short: string; color: string; topics: Topic[] };
 
 const statusText: Record<Topic['status'], string> = { done: 'Completed', current: 'In progress', available: 'Available', locked: 'Locked' };
 
@@ -15,9 +15,9 @@ export function RadialRoadmap({ onContinue }: { onContinue: () => void }) {
   const [doneIds, setDoneIds] = useState<string[]>(() => {
     try { return JSON.parse(localStorage.getItem('striver-a2z-topic-progress-v1') || '[]'); } catch { return []; }
   });
-  const progressModules = useMemo(() => modules.map(m => {
+  const progressModules = useMemo<Module[]>(() => modules.map(m => {
     const firstUndone = m.topics.find(t => !doneIds.includes(t.id));
-    return { ...m, topics: m.topics.map(t => ({ ...t, status: doneIds.includes(t.id) ? 'done' as const : t.id === firstUndone?.id ? 'current' as const : 'available' as const })) };
+    return { ...m, topics: m.topics.map(t => ({ ...t, status: (doneIds.includes(t.id) ? 'done' : t.id === firstUndone?.id ? 'current' : 'available') as Topic['status'] })) };
   }), [doneIds]);
   const allTopics = useMemo(() => progressModules.flatMap(m => m.topics), [progressModules]);
   const completed = allTopics.filter(t => t.status === 'done').length;
@@ -110,9 +110,9 @@ export function RadialRoadmap({ onContinue }: { onContinue: () => void }) {
             <label className="roadmap-search tree-search">⌕ <input value={query} onChange={e => setQuery(e.target.value)} placeholder="Search topics in this module…" /></label>
             <div className="branch-tree">
               {visibleTopics.map((topic, i) => <div className={`branch-row ${selectedTopic?.name === topic.name ? 'selected' : ''} ${topic.status}`} key={topic.name} style={{ '--module-color': selectedModule.color } as React.CSSProperties}>
-                <div className="branch-connector"><span className="branch-node-wrap"><button className="branch-node" onClick={() => setSelectedTopic(topic)} aria-label={topic.name} title={topic.name}>{topic.status === 'done' ? '✓' : topic.status === 'locked' ? '⌑' : topic.status === 'current' ? '●' : ''}</button></span></div>
-                <button className="branch-topic" onClick={() => setSelectedTopic(topic)}><strong>{topic.name}</strong><small>{statusText[topic.status]}{topic.pattern ? ' · ' + topic.pattern : ''}</small></button>
-                <span className="branch-topic-state">{topic.status === 'locked' ? '⌑' : topic.status === 'done' ? '✓' : '›'}</span>
+                <div className="branch-connector"><span className="branch-node-wrap"><button className="branch-node" onClick={() => setSelectedTopic(topic)} aria-label={topic.name} title={topic.name}>{topic.status === 'done' ? '✓' : topic.status === 'current' ? '●' : ''}</button></span></div>
+                <button className="branch-topic" onClick={() => setSelectedTopic(topic)}><strong>{topic.name}</strong><small>{statusText[topic.status]}</small></button>
+                <span className="branch-topic-state">{topic.status === 'done' ? '✓' : '›'}</span>
               </div>)}
               {visibleTopics.length === 0 && <p className="roadmap-empty">No topics match “{query}”.</p>}
             </div>
