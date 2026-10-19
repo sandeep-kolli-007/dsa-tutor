@@ -76,7 +76,7 @@
   .roadmap-page .radial-canvas { padding: 8px 6px 0; }
   /* SVG labels are tangent/rotated around the circle and collide at phone widths.
      Hide only those peripheral labels; the module list immediately below stays readable. */
-  .roadmap-page .radial-sector > text { display: none; }
+  .roadmap-page .radial-sector > text { display: block; font-size: 7px; letter-spacing: .35px; paint-order: stroke; stroke: #080b12; stroke-width: 1.6px; stroke-linejoin: round; }
   .roadmap-page .universe-legend { justify-content: flex-start; gap: 9px 14px; padding: 12px; }
   .roadmap-page .module-sidebar { padding: 14px 11px; }
   .roadmap-page .module-list { display: grid; grid-template-columns: minmax(0, 1fr); gap: 5px; max-height: none; overflow: visible; }
