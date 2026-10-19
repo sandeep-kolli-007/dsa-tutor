@@ -110,9 +110,9 @@ export function RadialRoadmap({ onContinue }: { onContinue: () => void }) {
             <label className="roadmap-search tree-search">⌕ <input value={query} onChange={e => setQuery(e.target.value)} placeholder="Search topics in this module…" /></label>
             <div className="branch-tree">
               {visibleTopics.map((topic, i) => <div className={`branch-row ${selectedTopic?.name === topic.name ? 'selected' : ''} ${topic.status}`} key={topic.name} style={{ '--module-color': selectedModule.color } as React.CSSProperties}>
-                <div className="branch-connector"><span className="branch-node-wrap"><button className="branch-node" onClick={() => setSelectedTopic(topic)} aria-label={topic.name} title={topic.name}>{topic.status === 'done' ? '✓' : topic.status === 'locked' ? '⌑' : topic.status === 'current' ? '●' : ''}</button></span></div>
-                <button className="branch-topic" onClick={() => setSelectedTopic(topic)}><strong>{topic.name}</strong><small>{statusText[topic.status]}{topic.pattern ? ' · ' + topic.pattern : ''}</small></button>
-                <span className="branch-topic-state">{topic.status === 'locked' ? '⌑' : topic.status === 'done' ? '✓' : '›'}</span>
+                <div className="branch-connector"><span className="branch-node-wrap"><button className="branch-node" onClick={() => setSelectedTopic(topic)} aria-label={topic.name} title={topic.name}>{topic.status === 'done' ? '✓' : topic.status === 'current' ? '●' : ''}</button></span></div>
+                <button className="branch-topic" onClick={() => setSelectedTopic(topic)}><strong>{topic.name}</strong><small>{statusText[topic.status]}</small></button>
+                <span className="branch-topic-state">{topic.status === 'done' ? '✓' : '›'}</span>
               </div>)}
               {visibleTopics.length === 0 && <p className="roadmap-empty">No topics match “{query}”.</p>}
             </div>
