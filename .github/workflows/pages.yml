@@ -1,4 +1,5 @@
 name: Deploy GitHub Pages
+# Trigger a fresh deployment after the production build fix.
 
 on:
   push:
