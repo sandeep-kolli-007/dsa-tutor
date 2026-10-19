@@ -3,6 +3,7 @@ import { IonContent, IonPage } from '@ionic/react';
 import { barChartOutline, codeSlashOutline, flashOutline, homeOutline, schoolOutline } from 'ionicons/icons';
 
 import './roadmap.css';
+import './roadmap-mobile.css';
 import { patterns } from './data/patterns';
 import { loadProgress, saveProgress } from './state/progress';
 import type { PatternId } from './types/lesson';
