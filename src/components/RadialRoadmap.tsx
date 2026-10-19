@@ -76,7 +76,7 @@ export function RadialRoadmap({ onContinue }: { onContinue: () => void }) {
                         <line x1={root.x} y1={root.y} x2={n.parent.x} y2={n.parent.y} stroke={module.color + '70'} strokeWidth="1.5" />
                         <line x1={n.parent.x} y1={n.parent.y} x2={n.point.x} y2={n.point.y} stroke={n.topic.status === 'done' ? '#245f51' : '#30394a'} strokeWidth="1.5" />
                         <circle cx={n.parent.x} cy={n.parent.y} r="3" fill={module.color} opacity=".9" />
-                        <circle cx={n.point.x} cy={n.point.y} r={n.topic.status === 'current' ? 6 : n.r} fill={n.topic.status === 'done' ? '#50d6a0' : n.topic.status === 'current' ? module.color : '#353d4b'} stroke={n.topic.status === 'current' ? '#dce8ff' : 'none'} strokeWidth="2" />
+                        <circle cx={n.point.x} cy={n.point.y} r={n.topic.status === 'current' ? 6 : n.r} fill={n.topic.status === 'done' ? '#50d6a0' : n.topic.status === 'current' ? module.color : '#353d4b'} stroke={n.topic.status === 'current' ? '#dce8ff' : 'none'} strokeWidth="2" role="button" tabIndex={0} aria-label={n.topic.name + ': ' + statusText[n.topic.status]} onClick={event => { event.stopPropagation(); setSelectedModule(module); setSelectedTopic(n.topic); setQuery(''); }}><title>{n.topic.name} · {statusText[n.topic.status]}</title></circle>
                       </g>)}
                       <circle cx={root.x} cy={root.y} r="5" fill={module.color} stroke="#dce8ff" strokeWidth="1" />
                       <text x={label.x} y={label.y} fill={module.color} fontSize="10" fontWeight="800" letterSpacing="1.1" textAnchor="middle" dominantBaseline="middle" transform={`rotate(${angle * 180 / Math.PI + 90} ${label.x} ${label.y})`}>{module.short}</text>
