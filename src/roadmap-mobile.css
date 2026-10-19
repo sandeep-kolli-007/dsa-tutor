@@ -1,0 +1,117 @@
+/* Mobile-first layout corrections for the Striver roadmap.
+   The radial map remains visual on phones; readable module names live in the list below. */
+.roadmap-page,
+.roadmap-page * { box-sizing: border-box; }
+
+.roadmap-page {
+  width: 100%;
+  max-width: 1600px;
+  min-width: 0;
+  margin-inline: auto;
+  overflow-x: clip;
+}
+
+.roadmap-page .universe-layout,
+.roadmap-page .module-tree-layout,
+.roadmap-page .universe-card,
+.roadmap-page .module-sidebar,
+.roadmap-page .tree-main-card {
+  min-width: 0;
+  max-width: 100%;
+}
+
+.roadmap-page .radial-canvas {
+  width: 100%;
+  max-width: 720px;
+  min-width: 0;
+  margin-inline: auto;
+}
+
+.roadmap-page .radial-canvas svg {
+  display: block;
+  width: 100%;
+  height: auto;
+  aspect-ratio: 1 / 1;
+}
+
+.roadmap-page .universe-tools {
+  min-width: 0;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.roadmap-page .universe-tools > span { min-width: 0; line-height: 1.5; }
+.roadmap-page .universe-tools > div { display: flex; flex-wrap: wrap; gap: 6px; }
+.roadmap-page .module-row,
+.roadmap-page .branch-row,
+.roadmap-page .branch-topic,
+.roadmap-page .module-row-copy { min-width: 0; }
+.roadmap-page .module-row-copy strong,
+.roadmap-page .module-row-copy small,
+.roadmap-page .branch-topic strong,
+.roadmap-page .branch-topic small { white-space: normal; overflow-wrap: anywhere; line-height: 1.45; }
+.roadmap-page .roadmap-search input { min-width: 0; }
+.roadmap-page button { touch-action: manipulation; }
+
+@media (max-width: 700px) {
+  .roadmap-page { padding: 18px 10px calc(112px + env(safe-area-inset-bottom)); }
+  .roadmap-page .roadmap-header {
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    gap: 14px;
+    margin-bottom: 16px;
+  }
+  .roadmap-page .roadmap-header h1 { font-size: clamp(30px, 9vw, 42px); line-height: 1.08; }
+  .roadmap-page .roadmap-header p { font-size: 12px; }
+  .roadmap-page .roadmap-total { width: 100%; min-width: 0; }
+  .roadmap-page .universe-layout,
+  .roadmap-page .module-tree-layout { display: grid; grid-template-columns: minmax(0, 1fr); gap: 12px; }
+  .roadmap-page .universe-card,
+  .roadmap-page .module-sidebar,
+  .roadmap-page .tree-main-card { border-radius: 14px; }
+  .roadmap-page .universe-tools { padding: 12px; align-items: flex-start; }
+  .roadmap-page .universe-tools > span { flex: 1 1 100%; }
+  .roadmap-page .universe-tools button { min-height: 34px; }
+  .roadmap-page .radial-canvas { padding: 8px 6px 0; }
+  /* SVG labels are tangent/rotated around the circle and collide at phone widths.
+     Hide only those peripheral labels; the module list immediately below stays readable. */
+  .roadmap-page .radial-sector > text { display: none; }
+  .roadmap-page .universe-legend { justify-content: flex-start; gap: 9px 14px; padding: 12px; }
+  .roadmap-page .module-sidebar { padding: 14px 11px; }
+  .roadmap-page .module-list { display: grid; grid-template-columns: minmax(0, 1fr); gap: 5px; max-height: none; overflow: visible; }
+  .roadmap-page .module-row { width: 100%; padding: 11px 8px; }
+  .roadmap-page .module-row-copy strong { font-size: 12px; }
+  .roadmap-page .module-row-copy small { font-size: 10px; }
+  .roadmap-page .tree-topbar { display: flex; align-items: flex-start; flex-wrap: wrap; gap: 8px; padding: 12px; }
+  .roadmap-page .tree-unlocked { max-width: 100%; white-space: normal; line-height: 1.4; }
+  .roadmap-page .tree-title-row { align-items: flex-start; gap: 10px; padding: 16px 12px 13px; }
+  .roadmap-page .tree-title-row > div:first-child { flex: 1 1 100%; }
+  .roadmap-page .tree-title-row h2 { font-size: clamp(23px, 7vw, 31px); line-height: 1.12; }
+  .roadmap-page .tree-module-badge { max-width: 100%; font-size: 8px; padding: 7px; }
+  .roadmap-page .tree-search { margin: 0 10px 12px; }
+  .roadmap-page .branch-tree { padding: 0 6px 8px; max-height: none; overflow: visible; }
+  .roadmap-page .branch-row { grid-template-columns: 26px minmax(0, 1fr) 16px; }
+  .roadmap-page .branch-topic { padding: 9px 7px; }
+  .roadmap-page .branch-topic strong { font-size: 12px; }
+  .roadmap-page .branch-topic small { font-size: 10px; }
+  .roadmap-page .topic-sheet { margin: 6px; padding: 14px 11px; }
+  .roadmap-page .topic-sheet-top { align-items: flex-start; flex-wrap: wrap; gap: 10px; }
+  .roadmap-page .topic-sheet-top > div { flex: 1 1 160px; min-width: 0; }
+  .roadmap-page .topic-sheet h3 { font-size: clamp(19px, 6vw, 23px); line-height: 1.2; overflow-wrap: anywhere; }
+  .roadmap-page .topic-state-pill { white-space: normal; }
+  .roadmap-page .topic-sheet-footer { align-items: flex-start; gap: 8px; }
+  .roadmap-page .topic-sheet-footer > span { flex: 1 1 120px; line-height: 1.5; }
+  .roadmap-page .topic-sheet-footer button { width: 100%; min-height: 44px; margin: 4px 0 0; }
+  .roadmap-page .tree-side-panel { display: none; }
+}
+
+@media (max-width: 380px) {
+  .roadmap-page { padding-inline: 7px; }
+  .roadmap-page .radial-canvas { padding-inline: 2px; }
+  .roadmap-page .universe-tools > div { width: 100%; }
+  .roadmap-page .universe-tools button { flex: 1 1 auto; }
+  .roadmap-page .tree-title-row { flex-direction: column; }
+  .roadmap-page .branch-row { grid-template-columns: 22px minmax(0, 1fr) 14px; }
+  .roadmap-page .topic-sheet-top { flex-direction: column; }
+}
