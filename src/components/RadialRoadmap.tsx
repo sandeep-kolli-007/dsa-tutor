@@ -106,12 +106,18 @@ export function RadialRoadmap({ onContinue }: { onContinue: () => void }) {
             <div className="tree-topbar"><button className="tree-back" onClick={() => { setSelectedModule(null); setSelectedTopic(null); setQuery(''); }}>← Roadmap</button><span className="tree-unlocked"><i style={{ background: selectedModule.color }} /> {selectedModule.topics.filter(t => t.status !== 'locked').length} / {selectedModule.topics.length} UNLOCKED</span></div>
             <div className="tree-title-row"><div><div className="roadmap-kicker">MODULE / SKILL TREE</div><h2>{selectedModule.name}</h2><p>Select a topic in this module to inspect it. The overview stays uncluttered; every topic remains available inside its module.</p></div><div className="tree-module-badge" style={{ color: selectedModule.color, borderColor: selectedModule.color + '66' }}>{selectedModule.short}</div></div>
             <label className="roadmap-search tree-search">⌕ <input value={query} onChange={e => setQuery(e.target.value)} placeholder="Search topics in this module…" /></label>
-            <div className="branch-tree">
-              {visibleTopics.map((topic, i) => <div className={`branch-row ${selectedTopic?.name === topic.name ? 'selected' : ''} ${topic.status}`} key={topic.name} style={{ '--module-color': selectedModule.color } as React.CSSProperties}>
-                <div className="branch-connector"><span className="branch-node-wrap"><button className="branch-node" onClick={() => setSelectedTopic(topic)} aria-label={topic.name} title={topic.name}>{topic.status === 'done' ? '✓' : topic.status === 'current' ? '●' : ''}</button></span></div>
-                <button className="branch-topic" onClick={() => setSelectedTopic(topic)}><strong>{topic.name}</strong><small>{statusText[topic.status]}</small></button>
-                <span className="branch-topic-state">{topic.status === 'done' ? '✓' : '›'}</span>
-              </div>)}
+            <div className="topic-list-clean" aria-label={`${selectedModule.name} topics`}>
+              {visibleTopics.map(topic => <button
+                type="button"
+                className={`topic-list-item ${selectedTopic?.id === topic.id ? 'is-selected' : ''}`}
+                key={topic.id}
+                onClick={() => setSelectedTopic(topic)}
+                style={{ '--topic-accent': selectedModule.color } as React.CSSProperties}
+              >
+                <span className={`topic-list-status ${topic.status}`}>{topic.status === 'done' ? '✓' : topic.status === 'current' ? '●' : '○'}</span>
+                <span className="topic-list-copy"><strong>{topic.name}</strong><small>{statusText[topic.status]}</small></span>
+                <span className="topic-list-chevron" aria-hidden="true">›</span>
+              </button>)}
               {visibleTopics.length === 0 && <p className="roadmap-empty">No topics match “{query}”.</p>}
             </div>
             {selectedTopic && <div className="topic-sheet">
