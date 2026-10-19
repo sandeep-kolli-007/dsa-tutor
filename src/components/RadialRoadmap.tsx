@@ -3,28 +3,7 @@ import { useMemo, useState } from 'react';
 type Topic = { name: string; status: 'done' | 'current' | 'available' | 'locked'; difficulty?: string; pattern?: string };
 type Module = { name: string; short: string; color: string; topics: Topic[] };
 
-const modules: Module[] = [
-  { name: 'Learn the Basics', short: 'BASICS', color: '#6b8cff', topics: ['Things to Know in Java', 'Build-up Logical Thinking', 'Patterns', 'STL', 'Basic Maths', 'Basic Recursion', 'Basic Hashing'].map((name, i) => ({ name, status: i < 3 ? 'done' : i === 3 ? 'current' : 'available' })) },
-  { name: 'Sorting Techniques', short: 'SORTING', color: '#8a7cff', topics: ['Selection Sort', 'Bubble Sort', 'Insertion Sort', 'Merge Sort', 'Quick Sort'].map((name, i) => ({ name, status: i < 2 ? 'done' : i === 2 ? 'current' : 'available' })) },
-  { name: 'Arrays', short: 'ARRAYS', color: '#4c83ff', topics: [{ name: 'Introduction to Arrays', status: 'done' }, { name: 'Traversal', status: 'done' }, { name: 'Two Sum', status: 'current', difficulty: 'Easy', pattern: 'Hashing' }, { name: 'Best Time to Buy and Sell Stock', status: 'available', difficulty: 'Easy', pattern: 'Greedy' }, { name: "Kadane’s Algorithm", status: 'available', difficulty: 'Medium', pattern: 'Dynamic Programming' }, { name: 'Majority Element', status: 'available', difficulty: 'Easy', pattern: 'Moore’s Voting' }, { name: 'Product of Array Except Self', status: 'locked', difficulty: 'Medium', pattern: 'Prefix / Suffix' }, { name: 'Maximum Subarray', status: 'locked', difficulty: 'Medium', pattern: 'Dynamic Programming' }] },
-  { name: 'Binary Search', short: 'BINARY SEARCH', color: '#7c79ff', topics: ['Binary Search', 'Lower Bound', 'Upper Bound', 'Search in Rotated Array', 'Median of Two Sorted Arrays'].map((name, i) => ({ name, status: i === 0 ? 'done' : i === 1 ? 'current' : 'available' })) },
-  { name: 'Strings', short: 'STRINGS', color: '#e879a9', topics: ['Basic String Problems', 'Reverse Words', 'Longest Palindrome', 'Anagram Check'].map((name, i) => ({ name, status: i === 0 ? 'done' : 'available' })) },
-  { name: 'Linked Lists', short: 'LINKED LIST', color: '#39c6b2', topics: ['Introduction to Linked List', 'Insert and Delete', 'Reverse Linked List', 'Detect a Cycle', 'Find Middle Node'].map((name, i) => ({ name, status: i === 0 ? 'done' : i === 1 ? 'current' : 'available' })) },
-  { name: 'Recursion', short: 'RECURSION', color: '#d1a7ff', topics: ['Introduction to Recursion', 'Subsequences', 'Backtracking', 'Permutations'].map((name, i) => ({ name, status: i === 0 ? 'done' : 'available' })) },
-  { name: 'Bit Manipulation', short: 'BIT MANIPULATION', color: '#72c8ff', topics: ['Bit Basics', 'Check a Bit', 'XOR Patterns', 'Power Set'].map((name, i) => ({ name, status: i === 0 ? 'done' : 'available' })) },
-  { name: 'Stacks & Queues', short: 'STACKS', color: '#ffad72', topics: ['Stack Basics', 'Queue Basics', 'Monotonic Stack', 'Next Greater Element'].map((name, i) => ({ name, status: i === 0 ? 'done' : 'available' })) },
-  { name: 'Greedy Algorithms', short: 'GREEDY', color: '#e4cc64', topics: ['Greedy Fundamentals', 'Activity Selection', 'Minimum Platforms'].map((name, i) => ({ name, status: i === 0 ? 'done' : 'available' })) },
-  { name: 'Binary Trees', short: 'TREES', color: '#7ed9a4', topics: ['Tree Traversals', 'Height of Tree', 'Diameter of Tree', 'Lowest Common Ancestor'].map((name, i) => ({ name, status: i === 0 ? 'done' : 'available' })) },
-  { name: 'Graphs', short: 'GRAPHS', color: '#7ab5ff', topics: ['Graph Representation', 'BFS', 'DFS', 'Shortest Paths'].map((name, i) => ({ name, status: i === 0 ? 'done' : 'available' })) },
-  { name: 'Dynamic Programming', short: 'DYNAMIC PROGRAMMING', color: '#f18e7b', topics: ['DP Introduction', 'Memoization', 'Tabulation', 'Knapsack'].map((name, i) => ({ name, status: i === 0 ? 'done' : 'available' })) },
-  { name: 'Heaps', short: 'HEAPS', color: '#c5a5ff', topics: ['Heap Basics', 'Kth Largest', 'Merge K Sorted Lists'].map((name, i) => ({ name, status: 'available' })) },
-  { name: 'Tries', short: 'TRIES', color: '#7ed9d0', topics: ['Trie Basics', 'Insert and Search', 'Prefix Search'].map((name, i) => ({ name, status: 'available' })) },
-  { name: 'Greedy Advanced', short: 'GREEDY II', color: '#e4cc64', topics: ['Advanced Greedy Patterns', 'Scheduling'].map((name, i) => ({ name, status: 'available' })) },
-  { name: 'Advanced Strings', short: 'STRINGS II', color: '#e879a9', topics: ['KMP', 'Z Algorithm', 'Rolling Hash'].map((name, i) => ({ name, status: 'available' })) },
-  { name: 'Maths', short: 'MATHS', color: '#a6b2c4', topics: ['GCD', 'Sieve', 'Combinatorics'].map((name, i) => ({ name, status: 'available' })) },
-  { name: 'Advanced Graphs', short: 'GRAPHS II', color: '#7ab5ff', topics: ['Disjoint Set Union', 'Minimum Spanning Tree', 'Strongly Connected Components'].map((name, i) => ({ name, status: 'available' })) },
-  { name: 'Advanced DP', short: 'DP II', color: '#f18e7b', topics: ['DP on Grids', 'DP on Subsequences', 'DP on Stocks'].map((name, i) => ({ name, status: 'available' })) },
-];
+import { roadmapModules as modules, roadmapTopicCount } from '../data/a2z-roadmap';
 
 const statusText: Record<Topic['status'], string> = { done: 'Completed', current: 'In progress', available: 'Available', locked: 'Locked' };
 
@@ -33,30 +12,50 @@ export function RadialRoadmap({ onContinue }: { onContinue: () => void }) {
   const [selectedTopic, setSelectedTopic] = useState<Topic | null>(null);
   const [zoom, setZoom] = useState(1);
   const [query, setQuery] = useState('');
-  const allTopics = useMemo(() => modules.flatMap(m => m.topics), []);
+  const [doneIds, setDoneIds] = useState<string[]>(() => {
+    try { return JSON.parse(localStorage.getItem('striver-a2z-topic-progress-v1') || '[]'); } catch { return []; }
+  });
+  const progressModules = useMemo(() => modules.map(m => {
+    const firstUndone = m.topics.find(t => !doneIds.includes(t.id));
+    return { ...m, topics: m.topics.map(t => ({ ...t, status: doneIds.includes(t.id) ? 'done' as const : t.id === firstUndone?.id ? 'current' as const : 'available' as const })) };
+  }), [doneIds]);
+  const allTopics = useMemo(() => progressModules.flatMap(m => m.topics), [progressModules]);
   const completed = allTopics.filter(t => t.status === 'done').length;
-  const total = 495;
+  const total = roadmapTopicCount;
+  const toggleDone = (topicId: string) => {
+    setDoneIds(previous => {
+      const next = previous.includes(topicId) ? previous.filter(id => id !== topicId) : [...previous, topicId];
+      localStorage.setItem('striver-a2z-topic-progress-v1', JSON.stringify(next));
+      return next;
+    });
+  };
 
   const polar = (cx: number, cy: number, r: number, a: number) => ({ x: cx + Math.cos(a) * r, y: cy + Math.sin(a) * r });
   // The overview is a ring of module hubs. Each hub owns a small radial
   // topic tree; dense modules can be opened to explore their full branch list.
-  const radialNodes = modules.map((m, i) => {
+  const radialNodes = progressModules.map((m, i) => {
     const angle = -Math.PI / 2 + (i / modules.length) * Math.PI * 2;
     const root = polar(250, 250, 78, angle);
-    const nodes = m.topics.slice(0, 8).map((topic, j, arr) => {
-      const branchAngle = angle + (j - (arr.length - 1) / 2) * Math.min(0.34, 0.86 / Math.max(arr.length, 1));
-      const parent = polar(250, 250, 78 + (j % 2) * 17, angle + (j - (arr.length - 1) / 2) * 0.045);
-      const point = polar(250, 250, 122 + (j % 3) * 31, branchAngle);
-      return { topic, parent, point, r: 4 };
+    const groupNames = [...new Set(m.topics.map(t => t.topic))];
+    const nodes = m.topics.map((topic, j) => {
+      const groupIndex = Math.max(0, groupNames.indexOf(topic.topic));
+      const groupSize = m.topics.filter(t => t.topic === topic.topic).length;
+      const groupPosition = m.topics.slice(0, j).filter(t => t.topic === topic.topic).length;
+      const groupAngle = angle + (groupIndex - (groupNames.length - 1) / 2) * Math.min(0.055, (Math.PI * 2 / modules.length) * 0.65 / Math.max(groupNames.length, 1));
+      const withinGroup = groupSize > 1 ? (groupPosition - (groupSize - 1) / 2) * 0.018 : 0;
+      const branchAngle = groupAngle + withinGroup;
+      const parent = polar(250, 250, 76 + (groupIndex % 2) * 12, groupAngle);
+      const point = polar(250, 250, 116 + (groupPosition % 5) * 21, branchAngle);
+      return { topic, parent, point, r: 3.2 };
     });
     return { module: m, angle, root, nodes };
   });
-  const visibleTopics = (selectedModule?.topics ?? []).filter(t => t.name.toLowerCase().includes(query.toLowerCase()));
+  const visibleTopics = (progressModules.find(m => m.name === selectedModule?.name)?.topics ?? []).filter(t => t.name.toLowerCase().includes(query.toLowerCase()));
 
   return (
     <section className="roadmap-page">
       <header className="roadmap-header">
-        <div><div className="roadmap-kicker"><span className="roadmap-live-dot" /> STRIVER A2Z · INTERACTIVE LEARNING PATH</div><h1>DSA <span>Universe</span></h1><p>490+ topics. One connected path from fundamentals to advanced algorithms.</p></div>
+        <div><div className="roadmap-kicker"><span className="roadmap-live-dot" /> STRIVER A2Z · INTERACTIVE LEARNING PATH</div><h1>DSA <span>Universe</span></h1><p>{total} real practice problems across {progressModules.length} modules, grouped by topic family.</p></div>
         <div className="roadmap-total"><strong>{completed}<small> / {total}</small></strong><span>topics completed</span><div className="roadmap-progress"><i style={{ width: (completed / total * 100) + '%' }} /></div></div>
       </header>
 
@@ -65,13 +64,13 @@ export function RadialRoadmap({ onContinue }: { onContinue: () => void }) {
           <div className="universe-card">
             <div className="universe-tools"><span>ROADMAP / ALL MODULES</span><div><button onClick={() => setZoom(z => Math.min(1.3, z + .1))} aria-label="Zoom in">＋</button><button onClick={() => setZoom(z => Math.max(.75, z - .1))} aria-label="Zoom out">−</button><button onClick={() => setZoom(1)}>Reset</button></div></div>
             <div className="radial-canvas">
-              <svg viewBox="0 0 500 500" role="img" aria-label="Circular Striver DSA roadmap with 20 modules">
+              <svg viewBox="0 0 500 500" role="img" aria-label={`Circular Striver A2Z roadmap with ${total} topic nodes across ${progressModules.length} modules`}>
                 <circle cx="250" cy="250" r="220" fill="none" stroke="#242b38" strokeWidth="1" />
                 <circle cx="250" cy="250" r="170" fill="none" stroke="#202735" strokeWidth="1" strokeDasharray="2 6" />
                 <g transform={`translate(250 250) scale(${zoom}) translate(-250 -250)`}>
                   {radialNodes.map(({ module, angle, root, nodes }) => {
                     const label = polar(250, 250, 196, angle);
-                    return <g key={module.name} onClick={() => { setSelectedModule(module); setSelectedTopic(module.topics.find(t => t.status === 'current') ?? module.topics[0]); setQuery(''); }} role="button" tabIndex={0} aria-label={module.name} className="radial-sector">
+                    return <g key={module.name} onClick={() => { const live = progressModules.find(m => m.name === module.name)!; setSelectedModule(live); setSelectedTopic(live.topics.find(t => t.status === 'current') ?? live.topics[0]); setQuery(''); }} role="button" tabIndex={0} aria-label={module.name} className="radial-sector">
                       <line x1="250" y1="250" x2={root.x} y2={root.y} stroke={module.color + '55'} strokeWidth="2" />
                       {nodes.map((n, j) => <g key={j}>
                         <line x1={root.x} y1={root.y} x2={n.parent.x} y2={n.parent.y} stroke={module.color + '70'} strokeWidth="1.5" />
@@ -86,19 +85,19 @@ export function RadialRoadmap({ onContinue }: { onContinue: () => void }) {
                   <circle cx="250" cy="250" r="27" fill="#101827" stroke="#416eff" strokeWidth="2" />
                   <circle cx="250" cy="250" r="17" fill="#315fff" opacity=".18" />
                   <text x="250" y="247" fill="#f4f7ff" fontSize="14" fontWeight="800" textAnchor="middle">{completed}</text>
-                  <text x="250" y="260" fill="#a8b6cf" fontSize="7" textAnchor="middle">/ 495</text>
+                  <text x="250" y="260" fill="#a8b6cf" fontSize="7" textAnchor="middle">/ {total}</text>
                 </g>
               </svg>
             </div>
             <div className="universe-legend"><span><i className="legend-dot done"/> Completed</span><span><i className="legend-dot current"/> In progress</span><span><i className="legend-dot available"/> Available</span><span><i className="legend-dot locked"/> Locked</span></div>
           </div>
           <aside className="module-sidebar">
-            <div className="module-sidebar-head"><div><span className="roadmap-kicker">EXPLORE</span><h2>Learning modules</h2></div><span className="module-count">20</span></div>
+            <div className="module-sidebar-head"><div><span className="roadmap-kicker">EXPLORE</span><h2>Learning modules</h2></div><span className="module-count">{progressModules.length}</span></div>
             <label className="roadmap-search">⌕ <input value={query} onChange={e => setQuery(e.target.value)} placeholder="Find a module…" /></label>
-            <div className="module-list">{modules.filter(m => m.name.toLowerCase().includes(query.toLowerCase())).map((m, i) => {
+            <div className="module-list">{progressModules.filter(m => m.name.toLowerCase().includes(query.toLowerCase())).map((m, i) => {
               const done = m.topics.filter(t => t.status === 'done').length;
               return <button className="module-row" key={m.name} onClick={() => { setSelectedModule(m); setSelectedTopic(m.topics.find(t => t.status === 'current') ?? m.topics[0]); setQuery(''); }}>
-                <span className="module-index" style={{ color: m.color, borderColor: m.color + '66' }}>{String(i + 1).padStart(2, '0')}</span><span className="module-row-copy"><strong>{m.name}</strong><small>{m.topics.length} preview topics · {done} completed</small><span className="module-mini-progress"><i style={{ width: (done / m.topics.length * 100) + '%', background: m.color }}/></span></span><span className="module-chevron">↗</span>
+                <span className="module-index" style={{ color: m.color, borderColor: m.color + '66' }}>{String(i + 1).padStart(2, '0')}</span><span className="module-row-copy"><strong>{m.name}</strong><small>{m.topics.length} topics · {done} completed</small><span className="module-mini-progress"><i style={{ width: (done / m.topics.length * 100) + '%', background: m.color }}/></span></span><span className="module-chevron">↗</span>
               </button>;
             })}</div>
           </aside>
@@ -121,7 +120,7 @@ export function RadialRoadmap({ onContinue }: { onContinue: () => void }) {
               <div className="sheet-grabber" /><div className="topic-sheet-top"><div><div className="roadmap-kicker">SELECTED TOPIC</div><h3>{selectedTopic.name}</h3></div><span className={`topic-state-pill ${selectedTopic.status}`}>{statusText[selectedTopic.status]}</span></div>
               <div className="topic-tags">{selectedTopic.difficulty && <span>{selectedTopic.difficulty}</span>}{selectedTopic.pattern && <span>{selectedTopic.pattern}</span>}<span>Java-first</span></div>
               <p>{selectedTopic.status === 'locked' ? 'Complete the prerequisite topics to unlock this step in your learning path.' : selectedTopic.name === 'Two Sum' ? 'Given an array of integers and a target, find the two indices whose values add up to the target.' : 'Learn the core idea, recognize the pattern, dry-run an example, and implement the solution in Java.'}</p>
-              <div className="topic-sheet-footer"><span>◷ 20–35 min</span><span>⌘ Practice problems</span><button disabled={selectedTopic.status === 'locked'} onClick={onContinue}>{selectedTopic.status === 'done' ? 'Review topic ↗' : 'Continue learning ↗'}</button></div>
+              <div className="topic-sheet-footer"><span>◷ 20–35 min</span><span>⌘ Practice problems</span>{selectedTopic.status !== 'done' && <button className="mark-topic-done" onClick={() => toggleDone((selectedTopic as Topic & {id:string}).id)}>Mark complete</button>}<button disabled={selectedTopic.status === 'locked'} onClick={onContinue}>{selectedTopic.status === 'done' ? 'Review topic ↗' : 'Continue learning ↗'}</button></div>
             </div>}
           </div>
           <aside className="tree-side-panel"><span className="roadmap-kicker">YOUR JOURNEY</span><h3>{selectedModule.name}</h3><p>Keep moving one node at a time. Each completed topic contributes to your roadmap progress.</p><div className="tree-stat-grid"><div><strong>{selectedModule.topics.filter(t => t.status === 'done').length}</strong><span>Completed</span></div><div><strong>{selectedModule.topics.filter(t => t.status === 'locked').length}</strong><span>Locked</span></div></div><div className="tree-next-card"><span className="roadmap-kicker">CURRENT FOCUS</span><strong>{selectedModule.topics.find(t => t.status === 'current')?.name ?? 'Start with the first topic'}</strong><span>Continue from your current position.</span></div><button className="tree-back full" onClick={() => { setSelectedModule(null); setSelectedTopic(null); }}>← Back to circular roadmap</button></aside>
