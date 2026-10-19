@@ -115,3 +115,59 @@
   .roadmap-page .branch-row { grid-template-columns: 22px minmax(0, 1fr) 14px; }
   .roadmap-page .topic-sheet-top { flex-direction: column; }
 }
+
+
+/* Clean topic list: deliberately avoids the legacy tree connector styles. */
+.roadmap-page .topic-list-clean {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 4px 14px 18px;
+  width: 100%;
+  min-width: 0;
+  max-height: min(52vh, 560px);
+  overflow-y: auto;
+  overscroll-behavior: contain;
+}
+.roadmap-page .topic-list-item {
+  appearance: none;
+  display: grid;
+  grid-template-columns: 24px minmax(0, 1fr) 18px;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  min-width: 0;
+  min-height: 54px;
+  padding: 10px 12px;
+  border: 1px solid #283246;
+  border-radius: 12px;
+  background: #101722;
+  color: #e9eefb;
+  text-align: left;
+  cursor: pointer;
+}
+.roadmap-page .topic-list-item.is-selected {
+  border-color: var(--topic-accent);
+  background: color-mix(in srgb, var(--topic-accent) 10%, #101722);
+}
+.roadmap-page .topic-list-status {
+  display: grid;
+  place-items: center;
+  width: 22px;
+  height: 22px;
+  border: 1px solid #46536a;
+  border-radius: 50%;
+  color: #a9b7ce;
+  font-size: 11px;
+}
+.roadmap-page .topic-list-status.done { background: #123629; border-color: #50d6a0; color: #50d6a0; }
+.roadmap-page .topic-list-status.current { background: #1d3261; border-color: #6b8cff; color: #b9c9ff; }
+.roadmap-page .topic-list-copy { display: flex; flex-direction: column; gap: 3px; min-width: 0; }
+.roadmap-page .topic-list-copy strong { color: #eef3ff; font-size: 13px; font-weight: 700; line-height: 1.35; overflow-wrap: anywhere; }
+.roadmap-page .topic-list-copy small { color: #92a0b8; font-size: 11px; line-height: 1.3; }
+.roadmap-page .topic-list-chevron { color: var(--topic-accent); font-size: 22px; text-align: center; }
+@media (max-width: 700px) {
+  .roadmap-page .topic-list-clean { padding: 2px 10px 18px; gap: 7px; max-height: none; overflow: visible; }
+  .roadmap-page .topic-list-item { min-height: 58px; padding: 11px 10px; grid-template-columns: 24px minmax(0, 1fr) 16px; }
+  .roadmap-page .topic-list-copy strong { font-size: 13px; }
+}
