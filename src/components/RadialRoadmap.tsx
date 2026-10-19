@@ -35,7 +35,7 @@ export function RadialRoadmap({ onContinue }: { onContinue: () => void }) {
   // topic tree; dense modules can be opened to explore their full branch list.
   const radialNodes = progressModules.map((m, i) => {
     const angle = -Math.PI / 2 + (i / modules.length) * Math.PI * 2;
-    const root = polar(250, 250, 78, angle);
+    const root = polar(250, 250, 112, angle);
     const groupNames = [...new Set(m.topics.map(t => t.topic))];
     const nodes = m.topics.map((topic, j) => {
       const groupIndex = Math.max(0, groupNames.indexOf(topic.topic));
@@ -64,20 +64,16 @@ export function RadialRoadmap({ onContinue }: { onContinue: () => void }) {
           <div className="universe-card">
             <div className="universe-tools"><span>ROADMAP / ALL MODULES</span><div><button onClick={() => setZoom(z => Math.min(1.3, z + .1))} aria-label="Zoom in">＋</button><button onClick={() => setZoom(z => Math.max(.75, z - .1))} aria-label="Zoom out">−</button><button onClick={() => setZoom(1)}>Reset</button></div></div>
             <div className="radial-canvas">
-              <svg viewBox="0 0 500 500" role="img" aria-label={`Circular Striver A2Z roadmap with ${total} topic nodes across ${progressModules.length} modules`}>
+              <svg viewBox="0 0 500 500" role="img" aria-label={`Circular Striver A2Z roadmap with ${total} topics across ${progressModules.length} modules. Select a module to explore its topics.`}>
                 <circle cx="250" cy="250" r="220" fill="none" stroke="#242b38" strokeWidth="1" />
                 <circle cx="250" cy="250" r="170" fill="none" stroke="#202735" strokeWidth="1" strokeDasharray="2 6" />
                 <g transform={`translate(250 250) scale(${zoom}) translate(-250 -250)`}>
                   {radialNodes.map(({ module, angle, root, nodes }) => {
-                    const label = polar(250, 250, 196, angle);
+                    const label = polar(250, 250, 207, angle);
                     return <g key={module.name} onClick={() => { const live = progressModules.find(m => m.name === module.name)!; setSelectedModule(live); setSelectedTopic(live.topics.find(t => t.status === 'current') ?? live.topics[0]); setQuery(''); }} role="button" tabIndex={0} aria-label={module.name} className="radial-sector">
                       <line x1="250" y1="250" x2={root.x} y2={root.y} stroke={module.color + '55'} strokeWidth="2" />
-                      {nodes.map((n, j) => <g key={j}>
-                        <line x1={root.x} y1={root.y} x2={n.parent.x} y2={n.parent.y} stroke={module.color + '70'} strokeWidth="1.5" />
-                        <line x1={n.parent.x} y1={n.parent.y} x2={n.point.x} y2={n.point.y} stroke={n.topic.status === 'done' ? '#245f51' : '#30394a'} strokeWidth="1.5" />
-                        <circle cx={n.parent.x} cy={n.parent.y} r="3" fill={module.color} opacity=".9" />
-                        <circle cx={n.point.x} cy={n.point.y} r={n.topic.status === 'current' ? 6 : n.r} fill={n.topic.status === 'done' ? '#50d6a0' : n.topic.status === 'current' ? module.color : '#353d4b'} stroke={n.topic.status === 'current' ? '#dce8ff' : 'none'} strokeWidth="2" role="button" tabIndex={0} aria-label={n.topic.name + ': ' + statusText[n.topic.status]} onClick={event => { event.stopPropagation(); setSelectedModule(module); setSelectedTopic(n.topic); setQuery(''); }}><title>{n.topic.name} · {statusText[n.topic.status]}</title></circle>
-                      </g>)}
+                      <circle cx={root.x} cy={root.y} r="16" fill="#111a2a" stroke={module.color} strokeWidth="2" />
+                      <text x={root.x} y={root.y + 3} fill="#f4f7ff" fontSize="9" fontWeight="800" textAnchor="middle">{module.topics.length}</text>
                       <circle cx={root.x} cy={root.y} r="5" fill={module.color} stroke="#dce8ff" strokeWidth="1" />
                       <text x={label.x} y={label.y} fill={module.color} fontSize="10" fontWeight="800" letterSpacing="1.1" textAnchor="middle" dominantBaseline="middle" transform={`rotate(${angle * 180 / Math.PI + 90} ${label.x} ${label.y})`}>{module.short}</text>
                     </g>;
@@ -106,7 +102,7 @@ export function RadialRoadmap({ onContinue }: { onContinue: () => void }) {
         <div className="module-tree-layout">
           <div className="tree-main-card">
             <div className="tree-topbar"><button className="tree-back" onClick={() => { setSelectedModule(null); setSelectedTopic(null); setQuery(''); }}>← Roadmap</button><span className="tree-unlocked"><i style={{ background: selectedModule.color }} /> {selectedModule.topics.filter(t => t.status !== 'locked').length} / {selectedModule.topics.length} UNLOCKED</span></div>
-            <div className="tree-title-row"><div><div className="roadmap-kicker">MODULE / SKILL TREE</div><h2>{selectedModule.name}</h2><p>Follow the branches. Select any node to inspect the topic.</p></div><div className="tree-module-badge" style={{ color: selectedModule.color, borderColor: selectedModule.color + '66' }}>{selectedModule.short}</div></div>
+            <div className="tree-title-row"><div><div className="roadmap-kicker">MODULE / SKILL TREE</div><h2>{selectedModule.name}</h2><p>Select a topic in this module to inspect it. The overview stays uncluttered; every topic remains available inside its module.</p></div><div className="tree-module-badge" style={{ color: selectedModule.color, borderColor: selectedModule.color + '66' }}>{selectedModule.short}</div></div>
             <label className="roadmap-search tree-search">⌕ <input value={query} onChange={e => setQuery(e.target.value)} placeholder="Search topics in this module…" /></label>
             <div className="branch-tree">
               {visibleTopics.map((topic, i) => <div className={`branch-row ${selectedTopic?.name === topic.name ? 'selected' : ''} ${topic.status}`} key={topic.name} style={{ '--module-color': selectedModule.color } as React.CSSProperties}>
