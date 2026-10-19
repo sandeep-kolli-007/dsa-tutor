@@ -31,22 +31,21 @@ export function RadialRoadmap({ onContinue }: { onContinue: () => void }) {
   };
 
   const polar = (cx: number, cy: number, r: number, a: number) => ({ x: cx + Math.cos(a) * r, y: cy + Math.sin(a) * r });
-  // The overview is a ring of module hubs. Each hub owns a small radial
-  // topic tree; dense modules can be opened to explore their full branch list.
+  // Overview shows each module plus only a few representative topic branches.
+  // The full topic list opens when a module or branch is selected.
   const radialNodes = progressModules.map((m, i) => {
     const angle = -Math.PI / 2 + (i / modules.length) * Math.PI * 2;
-    const root = polar(250, 250, 112, angle);
-    const groupNames = [...new Set(m.topics.map(t => t.topic))];
-    const nodes = m.topics.map((topic, j) => {
-      const groupIndex = Math.max(0, groupNames.indexOf(topic.topic));
-      const groupSize = m.topics.filter(t => t.topic === topic.topic).length;
-      const groupPosition = m.topics.slice(0, j).filter(t => t.topic === topic.topic).length;
-      const groupAngle = angle + (groupIndex - (groupNames.length - 1) / 2) * Math.min(0.055, (Math.PI * 2 / modules.length) * 0.65 / Math.max(groupNames.length, 1));
-      const withinGroup = groupSize > 1 ? (groupPosition - (groupSize - 1) / 2) * 0.018 : 0;
-      const branchAngle = groupAngle + withinGroup;
-      const parent = polar(250, 250, 76 + (groupIndex % 2) * 12, groupAngle);
-      const point = polar(250, 250, 116 + (groupPosition % 5) * 21, branchAngle);
-      return { topic, parent, point, r: 3.2 };
+    const root = polar(250, 250, 78, angle);
+    const sampleTopics = m.topics.filter((topic, j) => {
+      const stride = Math.max(1, Math.floor(m.topics.length / 3));
+      return j === 0 || j === Math.floor((m.topics.length - 1) / 2) || j === m.topics.length - 1;
+    }).slice(0, 3);
+    const nodes = sampleTopics.map((topic, j) => {
+      const offsets = [-0.12, 0, 0.12];
+      const branchAngle = angle + offsets[j];
+      const parent = polar(250, 250, 105, angle + offsets[j] * 0.45);
+      const point = polar(250, 250, 137 + (j % 2) * 18, branchAngle);
+      return { topic, parent, point, r: 3.5 };
     });
     return { module: m, angle, root, nodes };
   });
@@ -72,9 +71,12 @@ export function RadialRoadmap({ onContinue }: { onContinue: () => void }) {
                     const label = polar(250, 250, 207, angle);
                     return <g key={module.name} onClick={() => { const live = progressModules.find(m => m.name === module.name)!; setSelectedModule(live); setSelectedTopic(live.topics.find(t => t.status === 'current') ?? live.topics[0]); setQuery(''); }} role="button" tabIndex={0} aria-label={module.name} className="radial-sector">
                       <line x1="250" y1="250" x2={root.x} y2={root.y} stroke={module.color + '55'} strokeWidth="2" />
-                      <circle cx={root.x} cy={root.y} r="16" fill="#111a2a" stroke={module.color} strokeWidth="2" />
-                      <text x={root.x} y={root.y + 3} fill="#f4f7ff" fontSize="9" fontWeight="800" textAnchor="middle">{module.topics.length}</text>
-                      <circle cx={root.x} cy={root.y} r="5" fill={module.color} stroke="#dce8ff" strokeWidth="1" />
+                      {nodes.map(n => <g key={n.topic.id}>
+                        <path d={`M 250 250 Q ${n.parent.x} ${n.parent.y} ${n.point.x} ${n.point.y}`} fill="none" stroke={module.color + '45'} strokeWidth="1" />
+                        <circle cx={n.point.x} cy={n.point.y} r={n.topic.status === 'done' ? 4.5 : n.r} fill={n.topic.status === 'done' ? '#50d6a0' : module.color} stroke="#0d1320" strokeWidth="1" role="button" tabIndex={0} aria-label={n.topic.name} onClick={event => { event.stopPropagation(); setSelectedModule(module); setSelectedTopic(n.topic); setQuery(''); }}><title>{n.topic.name} · {statusText[n.topic.status]}</title></circle>
+                      </g>)}
+                      <circle cx={root.x} cy={root.y} r="13" fill="#111a2a" stroke={module.color} strokeWidth="2" />
+                      <text x={root.x} y={root.y + 3} fill="#f4f7ff" fontSize="8" fontWeight="800" textAnchor="middle">{module.topics.length}</text>
                       <text x={label.x} y={label.y} fill={module.color} fontSize="10" fontWeight="800" letterSpacing="1.1" textAnchor="middle" dominantBaseline="middle" transform={`rotate(${angle * 180 / Math.PI + 90} ${label.x} ${label.y})`}>{module.short}</text>
                     </g>;
                   })}
